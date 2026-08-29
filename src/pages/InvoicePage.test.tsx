@@ -58,7 +58,9 @@ describe('InvoicePage', () => {
     fireEvent.change(screen.getByLabelText('Quantity'), { target: { value: '3' } })
     fireEvent.change(screen.getByLabelText('Rate'), { target: { value: '50' } })
 
-    expect(screen.getByText('150.00')).toBeInTheDocument()
+    // "150.00" now appears both in the entry row's Amount and in the live
+    // preview's item/Amount Due cells.
+    expect(screen.getAllByText('150.00').length).toBeGreaterThanOrEqual(2)
     expect(screen.getByText('Total: 150.00')).toBeInTheDocument()
   })
 
@@ -109,6 +111,57 @@ describe('InvoicePage', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Quantity must be greater than 0')).toBeInTheDocument()
+    })
+  })
+
+  describe('preview', () => {
+    it('shows the contractor in the FROM section immediately', () => {
+      render(<InvoicePage />)
+      expect(screen.getByText('Ada Lovelace')).toBeInTheDocument()
+      expect(screen.getByText('Analytical Engines Ltd')).toBeInTheDocument()
+    })
+
+    it('shows a placeholder in the TO section until a client is selected', () => {
+      render(<InvoicePage />)
+      expect(screen.getByText('No client selected')).toBeInTheDocument()
+    })
+
+    it('shows the selected client in the TO section', () => {
+      render(<InvoicePage />)
+      fireEvent.change(screen.getByLabelText('Client'), {
+        target: { value: screen.getByRole('option', { name: 'Grace Hopper' }).getAttribute('value') },
+      })
+      expect(screen.getByText('Compilers Inc')).toBeInTheDocument()
+      expect(screen.queryByText('No client selected')).not.toBeInTheDocument()
+    })
+
+    it('reflects the invoice number and dates as they are entered', () => {
+      render(<InvoicePage />)
+      fireEvent.change(screen.getByLabelText('Invoice date'), { target: { value: '2026-01-01' } })
+
+      expect(screen.getAllByText('INV-1').length).toBeGreaterThanOrEqual(1)
+      expect(screen.getByText('2026-01-01')).toBeInTheDocument()
+    })
+
+    it('formats Amount Due using the selected client currency', () => {
+      render(<InvoicePage />)
+      fireEvent.change(screen.getByLabelText('Client'), {
+        target: { value: screen.getByRole('option', { name: 'Grace Hopper' }).getAttribute('value') },
+      })
+      fireEvent.change(screen.getByLabelText('Quantity'), { target: { value: '2' } })
+      fireEvent.change(screen.getByLabelText('Rate'), { target: { value: '25' } })
+
+      // "$50.00" appears both as the single item's Amount and as Amount Due.
+      expect(screen.getAllByText('$50.00').length).toBeGreaterThanOrEqual(2)
+    })
+
+    it('shows plain numbers for Amount Due before a client is selected', () => {
+      render(<InvoicePage />)
+      fireEvent.change(screen.getByLabelText('Quantity'), { target: { value: '2' } })
+      fireEvent.change(screen.getByLabelText('Rate'), { target: { value: '25' } })
+
+      expect(screen.getAllByText('50.00').length).toBeGreaterThanOrEqual(1)
+      expect(screen.queryByText('$50.00')).not.toBeInTheDocument()
     })
   })
 })

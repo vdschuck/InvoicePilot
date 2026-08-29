@@ -63,7 +63,9 @@ test('computes item amount and invoice total live as items are entered', async (
   await page.getByLabel('Quantity').fill('3')
   await page.getByLabel('Rate').fill('50')
 
-  await expect(page.getByText('150.00', { exact: true })).toBeVisible()
+  // "150.00" appears in the entry row's Amount and in the live preview's
+  // item/Amount Due cells.
+  await expect(page.getByText('150.00', { exact: true }).first()).toBeVisible()
   await expect(page.getByText('Total: 150.00')).toBeVisible()
 })
 
