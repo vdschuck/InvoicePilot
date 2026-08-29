@@ -17,7 +17,7 @@ export function InvoicePage() {
     <div className="flex flex-1 flex-col gap-6">
       <h1 className="text-2xl font-semibold">Create Invoice</h1>
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-        <InvoiceForm clients={clients} draftForm={draftForm} />
+        <InvoiceForm contractor={appData.contractor} clients={clients} draftForm={draftForm} />
         <InvoicePreview
           contractor={appData.contractor}
           clients={clients}

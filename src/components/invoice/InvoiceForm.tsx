@@ -1,25 +1,31 @@
+import { useState } from 'react'
 import { useWatch } from 'react-hook-form'
-import type { Client } from '../../types'
+import { generateInvoicePdf, getInvoiceFilename } from '../../services/pdf'
+import type { Client, Contractor, InvoiceDraft } from '../../types'
 import { calculateInvoiceTotal, calculateItemAmount, toSafeNumber } from '../../utils/calculations'
 import { SelectField } from '../forms/SelectField'
 import { TextField } from '../forms/TextField'
 import { InvoiceItemRow } from './InvoiceItemRow'
 import type { InvoiceDraftForm } from './useInvoiceDraftForm'
+import type { InvoiceFormValues } from '../../schemas/invoice'
 
 interface InvoiceFormProps {
+  contractor: Contractor
   clients: Client[]
   draftForm: InvoiceDraftForm
 }
 
-export function InvoiceForm({ clients, draftForm }: InvoiceFormProps) {
+export function InvoiceForm({ contractor, clients, draftForm }: InvoiceFormProps) {
   const {
     register,
     control,
+    handleSubmit,
     formState: { errors },
     fields,
     remove,
     handleAddItem,
   } = draftForm
+  const [downloadError, setDownloadError] = useState<string | null>(null)
 
   const items = useWatch({ control, name: 'items' })
 
@@ -33,8 +39,33 @@ export function InvoiceForm({ clients, draftForm }: InvoiceFormProps) {
   const clientOptions = clients.map((client) => ({ value: client.id, label: client.name }))
   const itemsError = errors.items?.root?.message ?? errors.items?.message
 
+  function handleDownload(values: InvoiceFormValues) {
+    const client = clients.find((candidate) => candidate.id === values.clientId)
+    if (!client) {
+      setDownloadError('Failed to generate the PDF. Please try again.')
+      return
+    }
+
+    const draft: InvoiceDraft = {
+      invoiceNumber: values.invoiceNumber,
+      client,
+      invoiceDate: values.invoiceDate,
+      issuedDate: values.issuedDate,
+      dueDate: values.dueDate,
+      items: values.items,
+    }
+
+    try {
+      const doc = generateInvoicePdf(contractor, draft)
+      doc.save(getInvoiceFilename(draft.invoiceNumber))
+      setDownloadError(null)
+    } catch {
+      setDownloadError('Failed to generate the PDF. Please try again.')
+    }
+  }
+
   return (
-    <form className="flex flex-col gap-6" noValidate>
+    <form className="flex flex-col gap-6" onSubmit={handleSubmit(handleDownload)} noValidate>
       <TextField
         label="Invoice number"
         registration={register('invoiceNumber')}
@@ -100,6 +131,19 @@ export function InvoiceForm({ clients, draftForm }: InvoiceFormProps) {
       </div>
 
       <div className="text-right text-lg font-semibold">Total: {total.toFixed(2)}</div>
+
+      {downloadError && (
+        <span role="alert" className="text-sm text-red-600">
+          {downloadError}
+        </span>
+      )}
+
+      <button
+        type="submit"
+        className="w-fit self-end rounded-md bg-gray-900 px-4 py-2 font-medium text-white hover:bg-gray-700"
+      >
+        Download PDF
+      </button>
     </form>
   )
 }

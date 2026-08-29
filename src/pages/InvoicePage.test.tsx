@@ -1,7 +1,13 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import * as pdfService from '../services/pdf'
 import { addClient, saveContractor } from '../services/storage'
 import type { Contractor } from '../types'
 import { InvoicePage } from './InvoicePage'
+
+jest.mock('../services/pdf', () => ({
+  generateInvoicePdf: jest.fn(),
+  getInvoiceFilename: jest.fn((invoiceNumber: string) => `invoice-${invoiceNumber}.pdf`),
+}))
 
 const contractor: Contractor = {
   name: 'Ada Lovelace',
@@ -31,6 +37,8 @@ describe('InvoicePage', () => {
   beforeEach(() => {
     localStorage.clear()
     seedContractorWithClient()
+    jest.clearAllMocks()
+    ;(pdfService.generateInvoicePdf as jest.Mock).mockReturnValue({ save: jest.fn() })
   })
 
   it('pre-fills the invoice number from the current sequence, unpadded', () => {
@@ -162,6 +170,66 @@ describe('InvoicePage', () => {
 
       expect(screen.getAllByText('50.00').length).toBeGreaterThanOrEqual(1)
       expect(screen.queryByText('$50.00')).not.toBeInTheDocument()
+    })
+  })
+
+  describe('PDF download', () => {
+    function fillValidDraft() {
+      fireEvent.change(screen.getByLabelText('Client'), {
+        target: { value: screen.getByRole('option', { name: 'Grace Hopper' }).getAttribute('value') },
+      })
+      fireEvent.change(screen.getByLabelText('Invoice date'), { target: { value: '2026-01-01' } })
+      fireEvent.change(screen.getByLabelText('Issued date'), { target: { value: '2026-01-01' } })
+      fireEvent.change(screen.getByLabelText('Due date'), { target: { value: '2026-01-15' } })
+      fireEvent.change(screen.getByLabelText('Ref No'), { target: { value: 'A-1' } })
+      fireEvent.change(screen.getByLabelText('Description'), { target: { value: 'Consulting' } })
+      fireEvent.change(screen.getByLabelText('Quantity'), { target: { value: '2' } })
+      fireEvent.change(screen.getByLabelText('Rate'), { target: { value: '100' } })
+    }
+
+    it('generates and downloads a PDF for a valid draft', async () => {
+      render(<InvoicePage />)
+      fillValidDraft()
+
+      fireEvent.click(screen.getByRole('button', { name: 'Download PDF' }))
+
+      await waitFor(() => {
+        expect(pdfService.generateInvoicePdf).toHaveBeenCalledTimes(1)
+      })
+      const [, draft] = (pdfService.generateInvoicePdf as jest.Mock).mock.calls[0]
+      expect(draft.invoiceNumber).toBe('INV-1')
+      expect(draft.client.name).toBe('Grace Hopper')
+      expect(draft.items).toHaveLength(1)
+
+      const generatedDoc = (pdfService.generateInvoicePdf as jest.Mock).mock.results[0].value
+      expect(generatedDoc.save).toHaveBeenCalledWith('invoice-INV-1.pdf')
+    })
+
+    it('does not generate a PDF when the draft is invalid, and shows validation errors instead', async () => {
+      render(<InvoicePage />)
+
+      fireEvent.click(screen.getByRole('button', { name: 'Download PDF' }))
+
+      await waitFor(() => {
+        expect(screen.getByText('Select a client')).toBeInTheDocument()
+      })
+      expect(pdfService.generateInvoicePdf).not.toHaveBeenCalled()
+    })
+
+    it('shows an error message and does not throw when PDF generation fails', async () => {
+      ;(pdfService.generateInvoicePdf as jest.Mock).mockImplementation(() => {
+        throw new Error('boom')
+      })
+      render(<InvoicePage />)
+      fillValidDraft()
+
+      fireEvent.click(screen.getByRole('button', { name: 'Download PDF' }))
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Failed to generate the PDF. Please try again.'),
+        ).toBeInTheDocument()
+      })
     })
   })
 })
