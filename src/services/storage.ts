@@ -1,6 +1,7 @@
-import type { AppData, Contractor } from '../types'
+import type { AppData, Client, Contractor } from '../types'
 
 const APP_DATA_KEY = 'invoicepilot:app-data'
+export const MAX_CLIENTS = 3
 
 export function getAppData(): AppData | null {
   const raw = localStorage.getItem(APP_DATA_KEY)
@@ -23,6 +24,49 @@ export function saveContractor(contractor: Contractor): void {
   }
 
   localStorage.setItem(APP_DATA_KEY, JSON.stringify(appData))
+}
+
+function requireAppData(): AppData {
+  const appData = getAppData()
+  if (!appData) {
+    throw new Error('Cannot manage clients before the contractor is configured.')
+  }
+  return appData
+}
+
+function saveClients(appData: AppData, clients: Client[]): Client[] {
+  localStorage.setItem(APP_DATA_KEY, JSON.stringify({ ...appData, clients }))
+  return clients
+}
+
+export function addClient(input: Omit<Client, 'id'>): Client[] {
+  const appData = requireAppData()
+
+  if (appData.clients.length >= MAX_CLIENTS) {
+    throw new Error(`A maximum of ${MAX_CLIENTS} clients is allowed.`)
+  }
+
+  const client: Client = { ...input, id: crypto.randomUUID() }
+  return saveClients(appData, [...appData.clients, client])
+}
+
+export function updateClient(id: string, input: Omit<Client, 'id'>): Client[] {
+  const appData = requireAppData()
+
+  if (!appData.clients.some((client) => client.id === id)) {
+    throw new Error(`No client found with id "${id}".`)
+  }
+
+  const clients = appData.clients.map((client) =>
+    client.id === id ? { ...input, id } : client,
+  )
+  return saveClients(appData, clients)
+}
+
+export function deleteClient(id: string): Client[] {
+  const appData = requireAppData()
+  const clients = appData.clients.filter((client) => client.id !== id)
+  return saveClients(appData, clients)
 }
 
 export function hasContractor(appData: AppData | null): boolean {

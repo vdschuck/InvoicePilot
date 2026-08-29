@@ -1,5 +1,14 @@
 import type { AppData, Client, Contractor } from '../types'
-import { getAppData, hasClients, hasContractor, saveContractor } from './storage'
+import {
+  addClient,
+  deleteClient,
+  getAppData,
+  hasClients,
+  hasContractor,
+  MAX_CLIENTS,
+  saveContractor,
+  updateClient,
+} from './storage'
 
 const STORAGE_KEY = 'invoicepilot:app-data'
 
@@ -15,9 +24,8 @@ function makeContractor(): Contractor {
   }
 }
 
-function makeClient(): Client {
+function makeClientInput(): Omit<Client, 'id'> {
   return {
-    id: '1',
     name: 'Client',
     companyName: '',
     streetAddress: '',
@@ -27,6 +35,10 @@ function makeClient(): Client {
     contactNumber: '',
     currency: 'USD',
   }
+}
+
+function makeClient(): Client {
+  return { ...makeClientInput(), id: '1' }
 }
 
 describe('storage', () => {
@@ -83,6 +95,90 @@ describe('storage', () => {
         clients: existing.clients,
         invoiceSequence: existing.invoiceSequence,
       })
+    })
+  })
+
+  describe('addClient', () => {
+    beforeEach(() => {
+      saveContractor(makeContractor())
+    })
+
+    it('throws when the contractor is not configured', () => {
+      localStorage.clear()
+      expect(() => addClient(makeClient())).toThrow(/contractor/i)
+    })
+
+    it('adds a client with a generated id', () => {
+      const input = makeClientInput()
+      const clients = addClient(input)
+
+      expect(clients).toHaveLength(1)
+      expect(clients[0]).toMatchObject(input)
+      expect(clients[0].id).toEqual(expect.any(String))
+      expect(clients[0].id).not.toBe('')
+    })
+
+    it('persists the added client', () => {
+      const input = makeClientInput()
+      addClient(input)
+
+      expect(getAppData()?.clients).toHaveLength(1)
+    })
+
+    it('refuses to add a client beyond the maximum', () => {
+      const input = makeClientInput()
+      for (let i = 0; i < MAX_CLIENTS; i += 1) {
+        addClient(input)
+      }
+
+      expect(() => addClient(input)).toThrow(/maximum/i)
+      expect(getAppData()?.clients).toHaveLength(MAX_CLIENTS)
+    })
+  })
+
+  describe('updateClient', () => {
+    beforeEach(() => {
+      saveContractor(makeContractor())
+    })
+
+    it('updates the matching client and preserves its id', () => {
+      const input = makeClientInput()
+      const [added] = addClient(input)
+
+      const updated = updateClient(added.id, { ...input, name: 'Updated Name' })
+
+      expect(updated).toHaveLength(1)
+      expect(updated[0]).toEqual({ ...input, name: 'Updated Name', id: added.id })
+    })
+
+    it('throws when no client matches the id', () => {
+      const input = makeClientInput()
+      expect(() => updateClient('missing-id', input)).toThrow(/no client/i)
+    })
+  })
+
+  describe('deleteClient', () => {
+    beforeEach(() => {
+      saveContractor(makeContractor())
+    })
+
+    it('removes the matching client', () => {
+      const input = makeClientInput()
+      const [added] = addClient(input)
+
+      const clients = deleteClient(added.id)
+
+      expect(clients).toHaveLength(0)
+      expect(getAppData()?.clients).toHaveLength(0)
+    })
+
+    it('is a no-op when the id does not match any client', () => {
+      const input = makeClientInput()
+      addClient(input)
+
+      const clients = deleteClient('missing-id')
+
+      expect(clients).toHaveLength(1)
     })
   })
 
