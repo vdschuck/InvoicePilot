@@ -1,6 +1,7 @@
 import type { AppData, Client, Contractor } from '../types'
 import {
   addClient,
+  advanceInvoiceSequence,
   deleteClient,
   getAppData,
   hasClients,
@@ -179,6 +180,42 @@ describe('storage', () => {
       const clients = deleteClient('missing-id')
 
       expect(clients).toHaveLength(1)
+    })
+  })
+
+  describe('advanceInvoiceSequence', () => {
+    beforeEach(() => {
+      saveContractor(makeContractor())
+    })
+
+    it('throws when the contractor is not configured', () => {
+      localStorage.clear()
+      expect(() => advanceInvoiceSequence()).toThrow(/contractor/i)
+    })
+
+    it('increments the sequence by 1 and returns the new value', () => {
+      const next = advanceInvoiceSequence()
+      expect(next).toBe(2)
+      expect(getAppData()?.invoiceSequence).toBe(2)
+    })
+
+    it('increments repeatedly on successive calls', () => {
+      advanceInvoiceSequence()
+      advanceInvoiceSequence()
+      const next = advanceInvoiceSequence()
+      expect(next).toBe(4)
+      expect(getAppData()?.invoiceSequence).toBe(4)
+    })
+
+    it('preserves the contractor and clients', () => {
+      const input = makeClientInput()
+      addClient(input)
+
+      advanceInvoiceSequence()
+
+      const appData = getAppData()
+      expect(appData?.contractor).toEqual(makeContractor())
+      expect(appData?.clients).toHaveLength(1)
     })
   })
 

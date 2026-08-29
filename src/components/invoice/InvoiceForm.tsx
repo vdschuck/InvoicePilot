@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useWatch } from 'react-hook-form'
 import { generateInvoicePdf, getInvoiceFilename } from '../../services/pdf'
+import { advanceInvoiceSequence } from '../../services/storage'
 import type { Client, Contractor, InvoiceDraft } from '../../types'
 import { calculateInvoiceTotal, calculateItemAmount, toSafeNumber } from '../../utils/calculations'
 import { SelectField } from '../forms/SelectField'
@@ -26,6 +27,9 @@ export function InvoiceForm({ contractor, clients, draftForm }: InvoiceFormProps
     handleAddItem,
   } = draftForm
   const [downloadError, setDownloadError] = useState<string | null>(null)
+  // Snapshot of the draft as of the last successful download, used to make
+  // repeat downloads of an unmodified draft idempotent (no double-advance).
+  const [lastDownloadedDraft, setLastDownloadedDraft] = useState<string | null>(null)
 
   const items = useWatch({ control, name: 'items' })
 
@@ -58,6 +62,13 @@ export function InvoiceForm({ contractor, clients, draftForm }: InvoiceFormProps
     try {
       const doc = generateInvoicePdf(contractor, draft)
       doc.save(getInvoiceFilename(draft.invoiceNumber))
+
+      const draftSnapshot = JSON.stringify(values)
+      if (lastDownloadedDraft !== draftSnapshot) {
+        advanceInvoiceSequence()
+        setLastDownloadedDraft(draftSnapshot)
+      }
+
       setDownloadError(null)
     } catch {
       setDownloadError('Failed to generate the PDF. Please try again.')

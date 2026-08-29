@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import * as pdfService from '../services/pdf'
-import { addClient, saveContractor } from '../services/storage'
+import { addClient, getAppData, saveContractor } from '../services/storage'
 import type { Contractor } from '../types'
 import { InvoicePage } from './InvoicePage'
 
@@ -31,6 +31,19 @@ function seedContractorWithClient() {
     contactNumber: '+1 555-0100',
     currency: 'USD',
   })
+}
+
+function fillValidDraft() {
+  fireEvent.change(screen.getByLabelText('Client'), {
+    target: { value: screen.getByRole('option', { name: 'Grace Hopper' }).getAttribute('value') },
+  })
+  fireEvent.change(screen.getByLabelText('Invoice date'), { target: { value: '2026-01-01' } })
+  fireEvent.change(screen.getByLabelText('Issued date'), { target: { value: '2026-01-01' } })
+  fireEvent.change(screen.getByLabelText('Due date'), { target: { value: '2026-01-15' } })
+  fireEvent.change(screen.getByLabelText('Ref No'), { target: { value: 'A-1' } })
+  fireEvent.change(screen.getByLabelText('Description'), { target: { value: 'Consulting' } })
+  fireEvent.change(screen.getByLabelText('Quantity'), { target: { value: '2' } })
+  fireEvent.change(screen.getByLabelText('Rate'), { target: { value: '100' } })
 }
 
 describe('InvoicePage', () => {
@@ -174,19 +187,6 @@ describe('InvoicePage', () => {
   })
 
   describe('PDF download', () => {
-    function fillValidDraft() {
-      fireEvent.change(screen.getByLabelText('Client'), {
-        target: { value: screen.getByRole('option', { name: 'Grace Hopper' }).getAttribute('value') },
-      })
-      fireEvent.change(screen.getByLabelText('Invoice date'), { target: { value: '2026-01-01' } })
-      fireEvent.change(screen.getByLabelText('Issued date'), { target: { value: '2026-01-01' } })
-      fireEvent.change(screen.getByLabelText('Due date'), { target: { value: '2026-01-15' } })
-      fireEvent.change(screen.getByLabelText('Ref No'), { target: { value: 'A-1' } })
-      fireEvent.change(screen.getByLabelText('Description'), { target: { value: 'Consulting' } })
-      fireEvent.change(screen.getByLabelText('Quantity'), { target: { value: '2' } })
-      fireEvent.change(screen.getByLabelText('Rate'), { target: { value: '100' } })
-    }
-
     it('generates and downloads a PDF for a valid draft', async () => {
       render(<InvoicePage />)
       fillValidDraft()
@@ -230,6 +230,85 @@ describe('InvoicePage', () => {
           screen.getByText('Failed to generate the PDF. Please try again.'),
         ).toBeInTheDocument()
       })
+    })
+  })
+
+  describe('invoice sequence', () => {
+    it('advances the invoice sequence after a successful download', async () => {
+      render(<InvoicePage />)
+      fillValidDraft()
+
+      fireEvent.click(screen.getByRole('button', { name: 'Download PDF' }))
+
+      await waitFor(() => {
+        expect(pdfService.generateInvoicePdf).toHaveBeenCalledTimes(1)
+      })
+      expect(getAppData()?.invoiceSequence).toBe(2)
+    })
+
+    it('does not advance the invoice sequence when generation fails', async () => {
+      ;(pdfService.generateInvoicePdf as jest.Mock).mockImplementation(() => {
+        throw new Error('boom')
+      })
+      render(<InvoicePage />)
+      fillValidDraft()
+
+      fireEvent.click(screen.getByRole('button', { name: 'Download PDF' }))
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Failed to generate the PDF. Please try again.'),
+        ).toBeInTheDocument()
+      })
+      expect(getAppData()?.invoiceSequence).toBe(1)
+    })
+
+    it('is idempotent: downloading the same unmodified draft again does not advance the sequence a second time', async () => {
+      render(<InvoicePage />)
+      fillValidDraft()
+
+      fireEvent.click(screen.getByRole('button', { name: 'Download PDF' }))
+      await waitFor(() => {
+        expect(pdfService.generateInvoicePdf).toHaveBeenCalledTimes(1)
+      })
+      expect(getAppData()?.invoiceSequence).toBe(2)
+
+      fireEvent.click(screen.getByRole('button', { name: 'Download PDF' }))
+      await waitFor(() => {
+        expect(pdfService.generateInvoicePdf).toHaveBeenCalledTimes(2)
+      })
+      expect(getAppData()?.invoiceSequence).toBe(2)
+    })
+
+    it('advances the sequence again when the draft is modified before downloading again', async () => {
+      render(<InvoicePage />)
+      fillValidDraft()
+
+      fireEvent.click(screen.getByRole('button', { name: 'Download PDF' }))
+      await waitFor(() => {
+        expect(getAppData()?.invoiceSequence).toBe(2)
+      })
+
+      fireEvent.change(screen.getByLabelText('Quantity'), { target: { value: '3' } })
+      fireEvent.click(screen.getByRole('button', { name: 'Download PDF' }))
+
+      await waitFor(() => {
+        expect(pdfService.generateInvoicePdf).toHaveBeenCalledTimes(2)
+      })
+      expect(getAppData()?.invoiceSequence).toBe(3)
+    })
+
+    it('gives the next invoice draft the next sequence number', async () => {
+      const first = render(<InvoicePage />)
+      fillValidDraft()
+      fireEvent.click(screen.getByRole('button', { name: 'Download PDF' }))
+      await waitFor(() => {
+        expect(getAppData()?.invoiceSequence).toBe(2)
+      })
+      first.unmount()
+
+      render(<InvoicePage />)
+      expect(screen.getByLabelText('Invoice number')).toHaveValue('INV-2')
     })
   })
 })

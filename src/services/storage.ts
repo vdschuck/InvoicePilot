@@ -29,7 +29,7 @@ export function saveContractor(contractor: Contractor): void {
 function requireAppData(): AppData {
   const appData = getAppData()
   if (!appData) {
-    throw new Error('Cannot manage clients before the contractor is configured.')
+    throw new Error('Cannot update application data before the contractor is configured.')
   }
   return appData
 }
@@ -67,6 +67,13 @@ export function deleteClient(id: string): Client[] {
   const appData = requireAppData()
   const clients = appData.clients.filter((client) => client.id !== id)
   return saveClients(appData, clients)
+}
+
+export function advanceInvoiceSequence(): number {
+  const appData = requireAppData()
+  const invoiceSequence = appData.invoiceSequence + 1
+  localStorage.setItem(APP_DATA_KEY, JSON.stringify({ ...appData, invoiceSequence }))
+  return invoiceSequence
 }
 
 export function hasContractor(appData: AppData | null): boolean {
