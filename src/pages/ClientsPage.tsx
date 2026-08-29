@@ -9,20 +9,36 @@ type FormState = { mode: 'closed' } | { mode: 'add' } | { mode: 'edit'; client: 
 export function ClientsPage() {
   const [clients, setClients] = useState<Client[]>(() => getAppData()?.clients ?? [])
   const [formState, setFormState] = useState<FormState>({ mode: 'closed' })
+  const [error, setError] = useState<string | null>(null)
 
   function handleAdd(values: ClientFormValues) {
-    setClients(addClient(values))
-    setFormState({ mode: 'closed' })
+    try {
+      setClients(addClient(values))
+      setFormState({ mode: 'closed' })
+      setError(null)
+    } catch {
+      setError('Failed to add the client. Please try again.')
+    }
   }
 
   function handleEdit(id: string, values: ClientFormValues) {
-    setClients(updateClient(id, values))
-    setFormState({ mode: 'closed' })
+    try {
+      setClients(updateClient(id, values))
+      setFormState({ mode: 'closed' })
+      setError(null)
+    } catch {
+      setError('Failed to update the client. Please try again.')
+    }
   }
 
   function handleDelete(client: Client) {
     if (!window.confirm(`Delete ${client.name}?`)) return
-    setClients(deleteClient(client.id))
+    try {
+      setClients(deleteClient(client.id))
+      setError(null)
+    } catch {
+      setError('Failed to delete the client. Please try again.')
+    }
   }
 
   return (
@@ -34,37 +50,47 @@ export function ClientsPage() {
         </span>
       </div>
 
-      <ul className="flex flex-col gap-3">
-        {clients.map((client) => (
-          <li
-            key={client.id}
-            className="flex items-center justify-between rounded-md border border-gray-200 p-4"
-          >
-            <div>
-              <p className="font-medium">{client.name}</p>
-              <p className="text-sm text-gray-600">
-                {client.companyName} · {client.currency}
-              </p>
-            </div>
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={() => setFormState({ mode: 'edit', client })}
-                className="text-sm font-medium text-gray-900 underline"
-              >
-                Edit
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDelete(client)}
-                className="text-sm font-medium text-red-600 underline"
-              >
-                Delete
-              </button>
-            </div>
-          </li>
-        ))}
-      </ul>
+      {error && (
+        <p role="alert" className="text-sm text-red-600">
+          {error}
+        </p>
+      )}
+
+      {clients.length === 0 ? (
+        <p className="text-gray-600">No clients registered yet.</p>
+      ) : (
+        <ul className="flex flex-col gap-3">
+          {clients.map((client) => (
+            <li
+              key={client.id}
+              className="flex flex-col gap-3 rounded-md border border-gray-200 p-4 sm:flex-row sm:items-center sm:justify-between"
+            >
+              <div>
+                <p className="font-medium">{client.name}</p>
+                <p className="text-sm text-gray-600">
+                  {client.companyName} · {client.currency}
+                </p>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setFormState({ mode: 'edit', client })}
+                  className="text-sm font-medium text-gray-900 underline"
+                >
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDelete(client)}
+                  className="text-sm font-medium text-red-600 underline"
+                >
+                  Delete
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
 
       {formState.mode === 'closed' && (
         <button

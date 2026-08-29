@@ -102,7 +102,6 @@ Testing and polish.
 - Responsive UI
 - Error states
 - Empty states
-- Accessibility
 - Unit tests (Jest) for business logic
 - End-to-end tests (Playwright) for invoice creation and PDF download
 - Browser testing

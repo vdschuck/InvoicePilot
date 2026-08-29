@@ -1,4 +1,5 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import * as storageService from '../services/storage'
 import { saveContractor } from '../services/storage'
 import type { Contractor } from '../types'
 import { ClientsPage } from './ClientsPage'
@@ -72,10 +73,21 @@ describe('ClientsPage', () => {
     mockConfirm(true)
   })
 
-  it('shows an empty list and a 0 / 3 count initially', () => {
+  it('shows an empty state and a 0 / 3 count initially', () => {
     render(<ClientsPage />)
     expect(screen.getByText('0 / 3')).toBeInTheDocument()
+    expect(screen.getByText('No clients registered yet.')).toBeInTheDocument()
     expect(screen.queryAllByRole('listitem')).toHaveLength(0)
+  })
+
+  it('replaces the empty state with the list once a client exists', async () => {
+    render(<ClientsPage />)
+    fireEvent.click(screen.getByRole('button', { name: 'Add Client' }))
+    fillClientForm(clientA)
+    fireEvent.click(screen.getByRole('button', { name: 'Add Client' }))
+
+    await screen.findByText('Grace Hopper')
+    expect(screen.queryByText('No clients registered yet.')).not.toBeInTheDocument()
   })
 
   it('adds a client and shows it in the list', async () => {
@@ -163,5 +175,70 @@ describe('ClientsPage', () => {
 
     expect(screen.queryByText('Grace Hopper')).not.toBeInTheDocument()
     expect(screen.getByText('0 / 3')).toBeInTheDocument()
+  })
+
+  describe('error states', () => {
+    afterEach(() => {
+      jest.restoreAllMocks()
+    })
+
+    it('shows an error message, without crashing, when adding fails', async () => {
+      jest.spyOn(storageService, 'addClient').mockImplementationOnce(() => {
+        throw new Error('boom')
+      })
+
+      render(<ClientsPage />)
+      fireEvent.click(screen.getByRole('button', { name: 'Add Client' }))
+      fillClientForm(clientA)
+      fireEvent.click(screen.getByRole('button', { name: 'Add Client' }))
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Failed to add the client. Please try again.'),
+        ).toBeInTheDocument()
+      })
+    })
+
+    it('shows an error message, without crashing, when editing fails', async () => {
+      render(<ClientsPage />)
+      fireEvent.click(screen.getByRole('button', { name: 'Add Client' }))
+      fillClientForm(clientA)
+      fireEvent.click(screen.getByRole('button', { name: 'Add Client' }))
+      await screen.findByText('Grace Hopper')
+
+      jest.spyOn(storageService, 'updateClient').mockImplementationOnce(() => {
+        throw new Error('boom')
+      })
+
+      fireEvent.click(screen.getByRole('button', { name: 'Edit' }))
+      fireEvent.click(screen.getByRole('button', { name: 'Save Changes' }))
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Failed to update the client. Please try again.'),
+        ).toBeInTheDocument()
+      })
+    })
+
+    it('shows an error message, without crashing, when deleting fails', async () => {
+      render(<ClientsPage />)
+      fireEvent.click(screen.getByRole('button', { name: 'Add Client' }))
+      fillClientForm(clientA)
+      fireEvent.click(screen.getByRole('button', { name: 'Add Client' }))
+      await screen.findByText('Grace Hopper')
+
+      jest.spyOn(storageService, 'deleteClient').mockImplementationOnce(() => {
+        throw new Error('boom')
+      })
+
+      fireEvent.click(screen.getByRole('button', { name: 'Delete' }))
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Failed to delete the client. Please try again.'),
+        ).toBeInTheDocument()
+      })
+      expect(screen.getByText('Grace Hopper')).toBeInTheDocument()
+    })
   })
 })

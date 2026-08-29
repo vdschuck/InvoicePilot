@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import * as storageService from '../../services/storage'
 import { getAppData } from '../../services/storage'
 import type { Contractor } from '../../types'
 import { ContractorForm } from './ContractorForm'
@@ -76,5 +77,41 @@ describe('ContractorForm', () => {
     fireEvent.change(screen.getByLabelText('City'), { target: { value: 'Manchester' } })
 
     expect(screen.queryByRole('status')).not.toBeInTheDocument()
+  })
+
+  it('shows an error message when saving fails, without crashing', async () => {
+    jest.spyOn(storageService, 'saveContractor').mockImplementationOnce(() => {
+      throw new Error('boom')
+    })
+
+    render(<ContractorForm contractor={null} />)
+    fillForm(contractor)
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }))
+
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toHaveTextContent(
+        'Failed to save contractor information. Please try again.',
+      )
+    })
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
+
+    jest.restoreAllMocks()
+  })
+
+  it('clears the save error once the form is edited again', async () => {
+    jest.spyOn(storageService, 'saveContractor').mockImplementationOnce(() => {
+      throw new Error('boom')
+    })
+
+    render(<ContractorForm contractor={null} />)
+    fillForm(contractor)
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }))
+    await waitFor(() => expect(screen.getByRole('alert')).toBeInTheDocument())
+
+    fireEvent.change(screen.getByLabelText('City'), { target: { value: 'Manchester' } })
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+
+    jest.restoreAllMocks()
   })
 })

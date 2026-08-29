@@ -18,6 +18,7 @@ const emptyContractor: ContractorFormValues = {
 
 export function ContractorForm({ contractor }: { contractor: Contractor | null }) {
   const [saved, setSaved] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
   const {
     register,
     handleSubmit,
@@ -28,14 +29,23 @@ export function ContractorForm({ contractor }: { contractor: Contractor | null }
   })
 
   function onSubmit(values: ContractorFormValues) {
-    saveContractor(values)
-    setSaved(true)
+    try {
+      saveContractor(values)
+      setSaved(true)
+      setSaveError(null)
+    } catch {
+      setSaved(false)
+      setSaveError('Failed to save contractor information. Please try again.')
+    }
   }
 
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      onChange={() => setSaved(false)}
+      onChange={() => {
+        setSaved(false)
+        setSaveError(null)
+      }}
       className="flex max-w-md flex-col gap-4"
       noValidate
     >
@@ -70,6 +80,11 @@ export function ContractorForm({ contractor }: { contractor: Contractor | null }
       {saved && (
         <p role="status" className="text-sm text-green-700">
           Contractor information saved.
+        </p>
+      )}
+      {saveError && (
+        <p role="alert" className="text-sm text-red-600">
+          {saveError}
         </p>
       )}
     </form>
