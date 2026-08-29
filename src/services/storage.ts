@@ -1,4 +1,4 @@
-import type { AppData } from '../types'
+import type { AppData, Contractor } from '../types'
 
 const APP_DATA_KEY = 'invoicepilot:app-data'
 
@@ -11,6 +11,18 @@ export function getAppData(): AppData | null {
   } catch {
     return null
   }
+}
+
+export function saveContractor(contractor: Contractor): void {
+  const existing = getAppData()
+
+  const appData: AppData = {
+    contractor,
+    clients: existing?.clients ?? [],
+    invoiceSequence: existing?.invoiceSequence ?? 1,
+  }
+
+  localStorage.setItem(APP_DATA_KEY, JSON.stringify(appData))
 }
 
 export function hasContractor(appData: AppData | null): boolean {

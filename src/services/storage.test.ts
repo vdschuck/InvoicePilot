@@ -1,5 +1,5 @@
 import type { AppData, Client, Contractor } from '../types'
-import { getAppData, hasClients, hasContractor } from './storage'
+import { getAppData, hasClients, hasContractor, saveContractor } from './storage'
 
 const STORAGE_KEY = 'invoicepilot:app-data'
 
@@ -52,6 +52,37 @@ describe('storage', () => {
       }
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
       expect(getAppData()).toEqual(data)
+    })
+  })
+
+  describe('saveContractor', () => {
+    it('creates app data with default clients and sequence when none exists', () => {
+      const contractor = makeContractor()
+      saveContractor(contractor)
+
+      expect(getAppData()).toEqual({
+        contractor,
+        clients: [],
+        invoiceSequence: 1,
+      })
+    })
+
+    it('preserves existing clients and sequence when updating the contractor', () => {
+      const existing: AppData = {
+        contractor: makeContractor(),
+        clients: [makeClient()],
+        invoiceSequence: 4,
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(existing))
+
+      const updatedContractor = { ...makeContractor(), name: 'Grace Hopper' }
+      saveContractor(updatedContractor)
+
+      expect(getAppData()).toEqual({
+        contractor: updatedContractor,
+        clients: existing.clients,
+        invoiceSequence: existing.invoiceSequence,
+      })
     })
   })
 
