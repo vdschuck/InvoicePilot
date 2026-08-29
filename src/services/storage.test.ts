@@ -2,10 +2,12 @@ import type { AppData, Client, Contractor } from '../types'
 import {
   addClient,
   advanceInvoiceSequence,
+  clearAppData,
   deleteClient,
   getAppData,
   hasClients,
   hasContractor,
+  isAppDataCorrupted,
   MAX_CLIENTS,
   saveContractor,
   updateClient,
@@ -216,6 +218,45 @@ describe('storage', () => {
       const appData = getAppData()
       expect(appData?.contractor).toEqual(makeContractor())
       expect(appData?.clients).toHaveLength(1)
+    })
+  })
+
+  describe('isAppDataCorrupted', () => {
+    it('is false when nothing is stored', () => {
+      expect(isAppDataCorrupted()).toBe(false)
+    })
+
+    it('is false when valid app data is stored', () => {
+      saveContractor(makeContractor())
+      expect(isAppDataCorrupted()).toBe(false)
+    })
+
+    it('is true when the stored value is not valid JSON', () => {
+      localStorage.setItem(STORAGE_KEY, '{not json')
+      expect(isAppDataCorrupted()).toBe(true)
+    })
+  })
+
+  describe('clearAppData', () => {
+    it('removes the stored app data', () => {
+      saveContractor(makeContractor())
+      expect(getAppData()).not.toBeNull()
+
+      clearAppData()
+
+      expect(getAppData()).toBeNull()
+      expect(localStorage.getItem(STORAGE_KEY)).toBeNull()
+    })
+
+    it('clears corrupted data too', () => {
+      localStorage.setItem(STORAGE_KEY, '{not json')
+      clearAppData()
+      expect(isAppDataCorrupted()).toBe(false)
+      expect(localStorage.getItem(STORAGE_KEY)).toBeNull()
+    })
+
+    it('is a no-op when there is nothing to clear', () => {
+      expect(() => clearAppData()).not.toThrow()
     })
   })
 

@@ -14,6 +14,22 @@ export function getAppData(): AppData | null {
   }
 }
 
+export function isAppDataCorrupted(): boolean {
+  const raw = localStorage.getItem(APP_DATA_KEY)
+  if (!raw) return false
+
+  try {
+    JSON.parse(raw)
+    return false
+  } catch {
+    return true
+  }
+}
+
+export function clearAppData(): void {
+  localStorage.removeItem(APP_DATA_KEY)
+}
+
 export function saveContractor(contractor: Contractor): void {
   const existing = getAppData()
 

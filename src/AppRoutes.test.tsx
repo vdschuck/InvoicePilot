@@ -116,3 +116,48 @@ describe('route guards', () => {
     ).toBeInTheDocument()
   })
 })
+
+describe('data reset', () => {
+  beforeEach(() => {
+    localStorage.clear()
+  })
+
+  it('shows the home page normally when there is no stored data', () => {
+    renderAt('/')
+    expect(screen.getByRole('heading', { name: 'InvoicePilot' })).toBeInTheDocument()
+    expect(screen.queryByText("We couldn't read your saved data")).not.toBeInTheDocument()
+  })
+
+  it('shows a corrupted-data notice instead of the app when stored data cannot be parsed', () => {
+    localStorage.setItem(STORAGE_KEY, '{not valid json')
+
+    renderAt('/')
+
+    expect(screen.getByText("We couldn't read your saved data")).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Setup' })).not.toBeInTheDocument()
+  })
+
+  it('shows the corrupted-data notice regardless of which route was requested', () => {
+    localStorage.setItem(STORAGE_KEY, '{not valid json')
+
+    renderAt('/invoice')
+
+    expect(screen.getByText("We couldn't read your saved data")).toBeInTheDocument()
+  })
+
+  it('the corrupted-data notice offers the same Delete All Data control', () => {
+    window.confirm = jest.fn().mockReturnValue(true)
+    localStorage.setItem(STORAGE_KEY, '{not valid json')
+
+    renderAt('/')
+    fireEvent.click(screen.getByRole('button', { name: 'Delete All Data' }))
+
+    expect(window.confirm).toHaveBeenCalled()
+    expect(localStorage.getItem(STORAGE_KEY)).toBeNull()
+  })
+
+  it('offers Delete All Data from the header on a normal page too', () => {
+    renderAt('/')
+    expect(screen.getByRole('button', { name: 'Delete All Data' })).toBeInTheDocument()
+  })
+})

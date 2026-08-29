@@ -105,7 +105,7 @@ test('deletes a client after confirming', async ({ page }) => {
   await expect(page.getByText('Grace Hopper')).toBeVisible()
 
   page.once('dialog', (dialog) => dialog.accept())
-  await page.getByRole('button', { name: 'Delete' }).click()
+  await page.getByRole('button', { name: 'Delete', exact: true }).click()
 
   await expect(page.getByText('Grace Hopper')).toHaveCount(0)
   await expect(page.getByText('0 / 3')).toBeVisible()
