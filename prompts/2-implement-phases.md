@@ -1,6 +1,6 @@
-Read CLAUDE.md and docs/development-plan.md.
+Read CLAUDE.md and all the files from docs folders again.
 
-Implement Phase 1 only.
+From docs/development-plan.md implement Phase 1 only.
 
 Do not implement features from later phases.
 
