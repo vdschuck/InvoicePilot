@@ -35,4 +35,23 @@ describe('clientSchema', () => {
     const result = clientSchema.safeParse({ ...validClient(), currency: '' })
     expect(result.success).toBe(false)
   })
+
+  it('accepts a client with no banking details', () => {
+    const result = clientSchema.safeParse(validClient())
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.bankingDetails).toBeUndefined()
+    }
+  })
+
+  it('accepts and trims multi-line banking details', () => {
+    const result = clientSchema.safeParse({
+      ...validClient(),
+      bankingDetails: '  TIN (CUI/CIF): 12345\nAccount No: 1234567890  ',
+    })
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.bankingDetails).toBe('TIN (CUI/CIF): 12345\nAccount No: 1234567890')
+    }
+  })
 })

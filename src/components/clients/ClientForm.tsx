@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { CURRENCIES } from '../../constants/currencies'
 import { clientSchema, type ClientFormValues } from '../../schemas/client'
 import { SelectField } from '../forms/SelectField'
+import { TextareaField } from '../forms/TextareaField'
 import { TextField } from '../forms/TextField'
 
 const emptyClient: ClientFormValues = {
@@ -14,7 +15,13 @@ const emptyClient: ClientFormValues = {
   country: '',
   contactNumber: '',
   currency: '',
+  bankingDetails: '',
 }
+
+const BANKING_DETAILS_PLACEHOLDER = `TIN (CUI/CIF):
+Account No:
+Routing No:
+Bank:`
 
 const currencyOptions = CURRENCIES.map((currency) => ({
   value: currency.code,
@@ -76,6 +83,12 @@ export function ClientForm({
         registration={register('currency')}
         error={errors.currency?.message}
         options={currencyOptions}
+      />
+      <TextareaField
+        label="Banking details"
+        registration={register('bankingDetails')}
+        error={errors.bankingDetails?.message}
+        placeholder={BANKING_DETAILS_PLACEHOLDER}
       />
 
       <div className="flex gap-3">

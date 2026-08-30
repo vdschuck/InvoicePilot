@@ -16,6 +16,7 @@ export const clientSchema = z.object({
   currency: z.string().refine((value) => CURRENCY_CODES.includes(value), {
     message: 'Select a valid currency',
   }),
+  bankingDetails: z.string().trim().optional(),
 }) satisfies z.ZodType<Omit<Client, 'id'>>
 
 export type ClientFormValues = z.infer<typeof clientSchema>

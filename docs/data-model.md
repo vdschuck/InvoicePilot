@@ -27,6 +27,7 @@ interface Client {
   country: string;
   contactNumber: string;
   currency: string; // ISO 4217 currency code, e.g. "USD"
+  bankingDetails?: string; // free-form, multi-line; optional
 }
 ```
 

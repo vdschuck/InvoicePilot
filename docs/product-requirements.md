@@ -46,8 +46,11 @@ Each client contains:
 - Contact number
 - Currency (selected when the client is registered or edited; used to
   display and calculate amounts on invoices for that client)
+- Banking details (optional)
 
 Client IDs are generated as GUIDs.
+
+Banking details are shown on the invoice preview and PDF only when not empty.
 
 ### Invoice
 

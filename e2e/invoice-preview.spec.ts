@@ -22,17 +22,34 @@ const client = {
   currency: 'USD',
 }
 
+const bankedClient = {
+  id: 'client-2',
+  name: 'Alan Turing',
+  companyName: 'Codebreakers Ltd',
+  streetAddress: '2 Enigma Road',
+  city: 'Bletchley',
+  state: 'Buckinghamshire',
+  country: 'United Kingdom',
+  contactNumber: '+44 20 7946 0959',
+  currency: 'USD',
+  bankingDetails: 'TIN (CUI/CIF): 999\nAccount No: 1234567890\nBank: Turing Trust',
+}
+
 async function goToInvoicePage(page: import('@playwright/test').Page) {
   await page.addInitScript(
-    ({ contractor, client }) => {
+    ({ contractor, client, bankedClient }) => {
       if (!localStorage.getItem('invoicepilot:app-data')) {
         localStorage.setItem(
           'invoicepilot:app-data',
-          JSON.stringify({ contractor, clients: [client], invoiceSequence: 1 }),
+          JSON.stringify({
+            contractor,
+            clients: [client, bankedClient],
+            invoiceSequence: 1,
+          }),
         )
       }
     },
-    { contractor, client },
+    { contractor, client, bankedClient },
   )
   await page.goto('/')
   await page.getByRole('link', { name: 'Create Invoice' }).click()
@@ -79,4 +96,19 @@ test('shows plain numbers for Amount Due before a client is selected', async ({ 
 
   await expect(page.getByText('50.00', { exact: true }).first()).toBeVisible()
   await expect(page.getByText('$50.00')).toHaveCount(0)
+})
+
+test('does not show banking details for a client that has none', async ({ page }) => {
+  await goToInvoicePage(page)
+  await page.getByLabel('Client').selectOption({ label: 'Grace Hopper' })
+  await expect(page.getByText("Client Banking Information")).toHaveCount(0)
+})
+
+test('shows banking details for a client that has them', async ({ page }) => {
+  await goToInvoicePage(page)
+  await page.getByLabel('Client').selectOption({ label: 'Alan Turing' })
+
+  await expect(page.getByText("Client Banking Information")).toBeVisible()
+  await expect(page.getByText(/TIN \(CUI\/CIF\): 999/)).toBeVisible()
+  await expect(page.getByText(/Bank: Turing Trust/)).toBeVisible()
 })

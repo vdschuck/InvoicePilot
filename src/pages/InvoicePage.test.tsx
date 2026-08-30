@@ -183,6 +183,36 @@ describe('InvoicePage', () => {
       expect(screen.getAllByText('50.00').length).toBeGreaterThanOrEqual(1)
       expect(screen.queryByText('$50.00')).not.toBeInTheDocument()
     })
+
+    it('does not show banking details for a client that has none', () => {
+      render(<InvoicePage />)
+      fireEvent.change(screen.getByLabelText('Client'), {
+        target: { value: screen.getByRole('option', { name: 'Grace Hopper' }).getAttribute('value') },
+      })
+      expect(screen.queryByText("Client Banking Information")).not.toBeInTheDocument()
+    })
+
+    it('shows the banking details heading and content for a client that has them', () => {
+      addClient({
+        name: 'Alan Turing',
+        companyName: 'Codebreakers Ltd',
+        streetAddress: '2 Enigma Road',
+        city: 'Bletchley',
+        state: 'Buckinghamshire',
+        country: 'United Kingdom',
+        contactNumber: '+44 20 7946 0959',
+        currency: 'USD',
+        bankingDetails: 'TIN (CUI/CIF): 999\nBank: Turing Trust',
+      })
+      render(<InvoicePage />)
+      fireEvent.change(screen.getByLabelText('Client'), {
+        target: { value: screen.getByRole('option', { name: 'Alan Turing' }).getAttribute('value') },
+      })
+
+      expect(screen.getByText("Client Banking Information")).toBeInTheDocument()
+      expect(screen.getByText(/TIN \(CUI\/CIF\): 999/)).toBeInTheDocument()
+      expect(screen.getByText(/Bank: Turing Trust/)).toBeInTheDocument()
+    })
   })
 
   describe('PDF download', () => {

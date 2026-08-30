@@ -73,7 +73,6 @@ Maximum:
 
 When 3 clients exist, Add Client is disabled.
 
-User can edit an existing client's information, including currency.
 
 User can delete an existing client.
 

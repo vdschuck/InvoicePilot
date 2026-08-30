@@ -86,18 +86,28 @@ export function InvoicePreview({ contractor, clients, control }: InvoicePreviewP
         </table>
       </div>
 
-      <div className="flex justify-end gap-4 border-t border-gray-200 pt-4 text-lg font-semibold">
-        <span>Amount Due:</span>
-        <span>{format(total)}</span>
-      </div>
-
-      <div className="grid grid-cols-[auto_auto] items-baseline justify-end gap-x-2 gap-y-1 self-end">
+      <div className="grid grid-cols-[auto_auto] items-baseline justify-end gap-x-2 gap-y-1 self-end border-t border-gray-200 pt-4">
         <h3 className="text-right text-sm font-semibold">Invoice Date:</h3>
         <p className="text-sm">{values.invoiceDate ? formatLongDate(values.invoiceDate) : '—'}</p>
         <h3 className="text-right text-sm font-semibold">Issued Date:</h3>
         <p className="text-sm">{values.issuedDate ? formatLongDate(values.issuedDate) : '—'}</p>
         <h3 className="text-right text-sm font-semibold">Due Date:</h3>
         <p className="text-sm">{values.dueDate ? formatLongDate(values.dueDate) : '—'}</p>
+      </div>
+
+      <div className="flex items-start justify-between gap-6">
+        <div className="text-sm">
+          {client?.bankingDetails && (
+            <>
+              <p className="font-semibold text-gray-700">Client Banking Information</p>
+              <p className="whitespace-pre-line text-gray-600">{client.bankingDetails}</p>
+            </>
+          )}
+        </div>
+        <div className="flex gap-4 text-lg font-semibold">
+          <span>Amount Due:</span>
+          <span>{format(total)}</span>
+        </div>
       </div>
     </div>
   )

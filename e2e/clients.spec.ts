@@ -61,6 +61,30 @@ test('shows validation errors when saving an empty client form', async ({ page }
   await expect(page.getByRole('alert').first()).toBeVisible()
 })
 
+test('saves a client without banking details, since the field is optional', async ({ page }) => {
+  await goToClientsPage(page)
+  await fillClientForm(page, clientA)
+  await page.getByRole('button', { name: 'Add Client' }).click()
+  await expect(page.getByText('Grace Hopper')).toBeVisible()
+})
+
+test('saves multi-line banking details entered for a client', async ({ page }) => {
+  await goToClientsPage(page)
+  await fillClientForm(page, clientA)
+  await page
+    .getByLabel('Banking details')
+    .fill('TIN (CUI/CIF): 12345\nAccount No: 1234567890\nBank: First National')
+  await page.getByRole('button', { name: 'Add Client' }).click()
+  await expect(page.getByText('Grace Hopper')).toBeVisible()
+
+  const stored = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem('invoicepilot:app-data') ?? 'null'),
+  )
+  expect(stored.clients[0].bankingDetails).toBe(
+    'TIN (CUI/CIF): 12345\nAccount No: 1234567890\nBank: First National',
+  )
+})
+
 test('adds a client and unlocks Create Invoice', async ({ page }) => {
   await goToClientsPage(page)
 

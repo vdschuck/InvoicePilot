@@ -18,6 +18,7 @@ export interface Client {
   country: string
   contactNumber: string
   currency: string
+  bankingDetails?: string
 }
 
 interface InvoiceItem {

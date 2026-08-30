@@ -117,10 +117,7 @@ export function generateInvoicePdf(contractor: Contractor, draft: InvoiceDraft):
   doc.setDrawColor(...BORDER_GRAY)
   doc.line(MARGIN_X, finalY + 8, PAGE_RIGHT_X, finalY + 8)
 
-  doc.setFontSize(13)
-  writeRightAlignedPair(doc, finalY + 18, 'Amount Due:', formatCurrency(total, currency), 6, 'bold', 'bold')
-
-  let datesY = finalY + 30
+  let datesY = finalY + 18
   doc.setFontSize(10)
   const dateRows: [string, string][] = [
     ['Invoice Date:', formatLongDate(draft.invoiceDate)],
@@ -142,6 +139,19 @@ export function generateInvoicePdf(contractor: Contractor, draft: InvoiceDraft):
     doc.text(value, valueX, datesY)
     datesY += 6
   })
+
+  const totalsY = datesY + 6
+
+  if (draft.client.bankingDetails) {
+    doc.setFontSize(10)
+    doc.setFont(FONT_NAME, 'bold')
+    doc.text('Client Banking Information', MARGIN_X, totalsY)
+    doc.setFont(FONT_NAME, 'normal')
+    writeLines(doc, MARGIN_X, totalsY + 6, draft.client.bankingDetails.split('\n'))
+  }
+
+  doc.setFontSize(13)
+  writeRightAlignedPair(doc, totalsY, 'Amount Due:', formatCurrency(total, currency), 6, 'bold', 'bold')
 
   return doc
 }

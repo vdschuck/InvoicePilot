@@ -94,6 +94,26 @@ describe('generateInvoicePdf', () => {
   it('does not throw for a single-item invoice', () => {
     expect(() => generateInvoicePdf(contractor, makeDraft())).not.toThrow()
   })
+
+  it('omits the banking details heading when the client has none', async () => {
+    const text = await extractText(generateInvoicePdf(contractor, makeDraft()))
+    expect(text).not.toContain('Client Banking Information')
+  })
+
+  it('includes the banking details heading and content when present', async () => {
+    const draft = makeDraft({
+      client: {
+        ...makeDraft().client,
+        bankingDetails: 'TIN (CUI/CIF): 12345\nAccount No: 1234567890\nBank: First National',
+      },
+    })
+    const text = await extractText(generateInvoicePdf(contractor, draft))
+
+    expect(text).toContain("Client Banking Information")
+    expect(text).toContain('TIN (CUI/CIF): 12345')
+    expect(text).toContain('Account No: 1234567890')
+    expect(text).toContain('Bank: First National')
+  })
 })
 
 describe('getInvoiceFilename', () => {
