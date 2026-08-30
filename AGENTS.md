@@ -13,6 +13,15 @@ The application allows a user to:
 
 The application does not maintain invoice history. All persistent application data is stored locally in the browser using localStorage.
 
+## Documentation
+
+- [Product Requirements](docs/product-requirements.md)
+- [Architecture](docs/architecture.md)
+- [Data Model](docs/data-model.md)
+- [Development Plan](docs/development-plan.md)
+- [Invoice Specification](docs/invoice-specification.md)
+- [User Flows](docs/user-flows.md)
+
 ## Technology
 
 - React

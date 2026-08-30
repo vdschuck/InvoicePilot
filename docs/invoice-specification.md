@@ -85,4 +85,4 @@ The PDF must:
 
 Example:
 
-invoice-INV-1.pdf
+invoice-1.pdf

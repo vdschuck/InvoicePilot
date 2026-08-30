@@ -1,9 +1,9 @@
 import { getNextInvoiceNumber } from './invoiceNumber'
 
 describe('getNextInvoiceNumber', () => {
-  it('formats the sequence with no zero-padding', () => {
-    expect(getNextInvoiceNumber(1)).toBe('INV-1')
-    expect(getNextInvoiceNumber(7)).toBe('INV-7')
-    expect(getNextInvoiceNumber(42)).toBe('INV-42')
+  it('formats the sequence as a plain, unpadded number', () => {
+    expect(getNextInvoiceNumber(1)).toBe('1')
+    expect(getNextInvoiceNumber(7)).toBe('7')
+    expect(getNextInvoiceNumber(42)).toBe('42')
   })
 })

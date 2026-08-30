@@ -110,11 +110,9 @@ instructing the user to delete the stored data using this control.
 When the Create Invoice screen opens, the invoice number must
 already contain an automatically generated number.
 
-The format is `INV-{sequence}` with no zero-padding (e.g. `INV-1`,
-`INV-7`, `INV-42`).
+The format is the sequence number itself, with no prefix and no zero-padding (e.g. `1`, `7`,`42`).
 
-The invoice sequence starts at 1. The first invoice ever generated
-is `INV-1`.
+The invoice sequence starts at 1. The first invoice ever generated is `1`.
 
 The user may manually edit the invoice number.
 
