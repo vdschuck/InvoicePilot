@@ -26,16 +26,18 @@ async function goToInvoicePage(
   page: import('@playwright/test').Page,
   invoiceSequence = 1,
 ) {
-  await page.goto('/')
-  await page.evaluate(
+  await page.addInitScript(
     ({ contractor, client, invoiceSequence }) => {
-      localStorage.setItem(
-        'invoicepilot:app-data',
-        JSON.stringify({ contractor, clients: [client], invoiceSequence }),
-      )
+      if (!localStorage.getItem('invoicepilot:app-data')) {
+        localStorage.setItem(
+          'invoicepilot:app-data',
+          JSON.stringify({ contractor, clients: [client], invoiceSequence }),
+        )
+      }
     },
     { contractor, client, invoiceSequence },
   )
+  await page.goto('/')
   await page.getByRole('link', { name: 'Create Invoice' }).click()
   await expect(page).toHaveURL('/invoice')
 }
@@ -60,7 +62,7 @@ test('downloads a PDF named after the invoice number', async ({ page }) => {
     page.getByRole('button', { name: 'Download PDF' }).click(),
   ])
 
-  expect(download.suggestedFilename()).toBe('invoice-INV-7.pdf')
+  expect(download.suggestedFilename()).toBe('invoice-7.pdf')
 
   const filePath = await download.path()
   expect(filePath).not.toBeNull()

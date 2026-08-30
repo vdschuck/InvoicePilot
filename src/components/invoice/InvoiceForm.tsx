@@ -3,7 +3,7 @@ import { useWatch } from 'react-hook-form'
 import { generateInvoicePdf, getInvoiceFilename } from '../../services/pdf'
 import { advanceInvoiceSequence } from '../../services/storage'
 import type { Client, Contractor, InvoiceDraft } from '../../types'
-import { calculateInvoiceTotal, calculateItemAmount, toSafeNumber } from '../../utils/calculations'
+import { calculateInvoiceTotal, toSafeNumber } from '../../utils/calculations'
 import { SelectField } from '../forms/SelectField'
 import { TextField } from '../forms/TextField'
 import { InvoiceItemRow } from './InvoiceItemRow'
@@ -124,10 +124,6 @@ export function InvoiceForm({ contractor, clients, draftForm }: InvoiceFormProps
             index={index}
             register={register}
             errors={errors.items?.[index]}
-            amount={calculateItemAmount(
-              toSafeNumber(items?.[index]?.quantity),
-              toSafeNumber(items?.[index]?.rate),
-            )}
             onRemove={() => remove(index)}
             canRemove={fields.length > 1}
           />
@@ -135,7 +131,7 @@ export function InvoiceForm({ contractor, clients, draftForm }: InvoiceFormProps
         <button
           type="button"
           onClick={handleAddItem}
-          className="w-fit rounded-md border border-gray-300 px-4 py-2 font-medium hover:bg-gray-50"
+          className="w-fit cursor-pointer rounded-md border border-gray-300 px-4 py-2 font-medium hover:bg-gray-50"
         >
           Add Item
         </button>
@@ -151,7 +147,7 @@ export function InvoiceForm({ contractor, clients, draftForm }: InvoiceFormProps
 
       <button
         type="submit"
-        className="w-fit self-end rounded-md bg-gray-900 px-4 py-2 font-medium text-white hover:bg-gray-700"
+        className="w-fit cursor-pointer self-end rounded-md bg-gray-900 px-4 py-2 font-medium text-white hover:bg-gray-700"
       >
         Download PDF
       </button>

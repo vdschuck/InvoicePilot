@@ -6,7 +6,6 @@ interface InvoiceItemRowProps {
   index: number
   register: UseFormRegister<InvoiceFormValues>
   errors?: FieldErrors<InvoiceItemFormValues>
-  amount: number
   onRemove: () => void
   canRemove: boolean
 }
@@ -15,47 +14,59 @@ export function InvoiceItemRow({
   index,
   register,
   errors,
-  amount,
   onRemove,
   canRemove,
 }: InvoiceItemRowProps) {
   return (
-    <div className="flex flex-col gap-3 rounded-md border border-gray-200 p-4 sm:flex-row sm:items-start sm:flex-wrap">
+    <div className="flex flex-col gap-3 rounded-md border border-gray-200 p-4">
       <input type="hidden" {...register(`items.${index}.id` as const)} />
-      <TextField
-        label="Ref No"
-        registration={register(`items.${index}.refNo` as const)}
-        error={errors?.refNo?.message}
-      />
-      <TextField
-        label="Description"
-        registration={register(`items.${index}.description` as const)}
-        error={errors?.description?.message}
-      />
-      <TextField
-        label="Quantity"
-        type="number"
-        registration={register(`items.${index}.quantity` as const, { valueAsNumber: true })}
-        error={errors?.quantity?.message}
-      />
-      <TextField
-        label="Rate"
-        type="number"
-        registration={register(`items.${index}.rate` as const, { valueAsNumber: true })}
-        error={errors?.rate?.message}
-      />
-      <div className="flex flex-col gap-1 text-sm">
-        <span className="font-medium text-gray-700">Amount</span>
-        <span className="px-3 py-2">{amount.toFixed(2)}</span>
+
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <div className="sm:w-1/3">
+          <TextField
+            label="Ref No"
+            registration={register(`items.${index}.refNo` as const)}
+            error={errors?.refNo?.message}
+          />
+        </div>
+        <div className="sm:w-2/3">
+          <TextField
+            label="Description"
+            registration={register(`items.${index}.description` as const)}
+            error={errors?.description?.message}
+          />
+        </div>
       </div>
-      <button
-        type="button"
-        onClick={onRemove}
-        disabled={!canRemove}
-        className="self-start text-sm font-medium text-red-600 underline disabled:cursor-not-allowed disabled:text-gray-400"
-      >
-        Remove
-      </button>
+
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <div className="sm:w-1/2">
+          <TextField
+            label="Quantity"
+            type="number"
+            registration={register(`items.${index}.quantity` as const, { valueAsNumber: true })}
+            error={errors?.quantity?.message}
+          />
+        </div>
+        <div className="sm:w-1/2">
+          <TextField
+            label="Rate"
+            type="number"
+            registration={register(`items.${index}.rate` as const, { valueAsNumber: true })}
+            error={errors?.rate?.message}
+          />
+        </div>
+      </div>
+
+      <div className="flex justify-end">
+        <button
+          type="button"
+          onClick={onRemove}
+          disabled={!canRemove}
+          className="cursor-pointer text-sm font-medium text-red-600 underline disabled:cursor-not-allowed disabled:text-gray-400"
+        >
+          Remove
+        </button>
+      </div>
     </div>
   )
 }

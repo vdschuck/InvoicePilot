@@ -26,23 +26,25 @@ async function goToInvoicePage(
   page: import('@playwright/test').Page,
   invoiceSequence = 1,
 ) {
-  await page.goto('/')
-  await page.evaluate(
+  await page.addInitScript(
     ({ contractor, client, invoiceSequence }) => {
-      localStorage.setItem(
-        'invoicepilot:app-data',
-        JSON.stringify({ contractor, clients: [client], invoiceSequence }),
-      )
+      if (!localStorage.getItem('invoicepilot:app-data')) {
+        localStorage.setItem(
+          'invoicepilot:app-data',
+          JSON.stringify({ contractor, clients: [client], invoiceSequence }),
+        )
+      }
     },
     { contractor, client, invoiceSequence },
   )
+  await page.goto('/')
   await page.getByRole('link', { name: 'Create Invoice' }).click()
   await expect(page).toHaveURL('/invoice')
 }
 
 test('pre-fills an unpadded invoice number from the current sequence', async ({ page }) => {
   await goToInvoicePage(page, 7)
-  await expect(page.getByLabel('Invoice number')).toHaveValue('INV-7')
+  await expect(page.getByLabel('Invoice number')).toHaveValue('7')
 })
 
 test('allows manually editing the invoice number', async ({ page }) => {
@@ -63,8 +65,7 @@ test('computes item amount and invoice total live as items are entered', async (
   await page.getByLabel('Quantity').fill('3')
   await page.getByLabel('Rate').fill('50')
 
-  // "150.00" appears in the entry row's Amount and in the live preview's
-  // item/Amount Due cells.
+  // "150.00" appears in the live preview's item and Amount Due cells.
   await expect(page.getByText('150.00', { exact: true }).first()).toBeVisible()
   await expect(page.getByText('Total: 150.00')).toBeVisible()
 })

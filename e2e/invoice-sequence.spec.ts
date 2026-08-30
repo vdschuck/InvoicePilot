@@ -23,16 +23,22 @@ const client = {
 }
 
 async function seedAppData(page: Page, invoiceSequence: number) {
-  await page.goto('/')
-  await page.evaluate(
+  // Only seed once: addInitScript re-runs on every navigation this page
+  // makes, and some tests here navigate again later (e.g. back to "/" to
+  // check the next invoice number) after the sequence has already advanced.
+  // Re-running the seed unconditionally would wipe that progress out.
+  await page.addInitScript(
     ({ contractor, client, invoiceSequence }) => {
-      localStorage.setItem(
-        'invoicepilot:app-data',
-        JSON.stringify({ contractor, clients: [client], invoiceSequence }),
-      )
+      if (!localStorage.getItem('invoicepilot:app-data')) {
+        localStorage.setItem(
+          'invoicepilot:app-data',
+          JSON.stringify({ contractor, clients: [client], invoiceSequence }),
+        )
+      }
     },
     { contractor, client, invoiceSequence },
   )
+  await page.goto('/')
 }
 
 async function getStoredSequence(page: Page): Promise<number> {
@@ -113,5 +119,5 @@ test('the next invoice draft receives the next sequence number', async ({ page }
   await page.goto('/')
   await page.getByRole('link', { name: 'Create Invoice' }).click()
 
-  await expect(page.getByLabel('Invoice number')).toHaveValue('INV-2')
+  await expect(page.getByLabel('Invoice number')).toHaveValue('2')
 })

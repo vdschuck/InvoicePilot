@@ -23,16 +23,18 @@ const client = {
 }
 
 async function goToInvoicePage(page: import('@playwright/test').Page) {
-  await page.goto('/')
-  await page.evaluate(
+  await page.addInitScript(
     ({ contractor, client }) => {
-      localStorage.setItem(
-        'invoicepilot:app-data',
-        JSON.stringify({ contractor, clients: [client], invoiceSequence: 1 }),
-      )
+      if (!localStorage.getItem('invoicepilot:app-data')) {
+        localStorage.setItem(
+          'invoicepilot:app-data',
+          JSON.stringify({ contractor, clients: [client], invoiceSequence: 1 }),
+        )
+      }
     },
     { contractor, client },
   )
+  await page.goto('/')
   await page.getByRole('link', { name: 'Create Invoice' }).click()
   await expect(page).toHaveURL('/invoice')
 }
@@ -58,7 +60,7 @@ test('updates the TO section once a client is selected', async ({ page }) => {
 test('reflects dates as they are entered', async ({ page }) => {
   await goToInvoicePage(page)
   await page.getByLabel('Invoice date').fill('2026-01-01')
-  await expect(page.getByText('2026-01-01')).toBeVisible()
+  await expect(page.getByText('January 1, 2026')).toBeVisible()
 })
 
 test('formats Amount Due using the selected client currency', async ({ page }) => {

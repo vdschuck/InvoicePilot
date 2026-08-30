@@ -1,5 +1,22 @@
+/**
+ * @jest-environment node
+ */
+import pdfParse from 'pdf-parse'
+import type { jsPDF } from 'jspdf'
 import type { Contractor, InvoiceDraft } from '../types'
+import { formatLongDate } from '../utils/dateFormat'
 import { generateInvoicePdf, getInvoiceFilename } from './pdf'
+
+// The PDF embeds a real TTF font (Inter) so its rendered text matches the
+// on-screen preview's font. jsPDF stores text drawn with an embedded font as
+// CID glyph indices rather than literal ASCII, so a raw substring search on
+// doc.output() no longer works — the text must be decoded the way a real PDF
+// reader would, via pdf-parse.
+async function extractText(doc: jsPDF): Promise<string> {
+  const buffer = Buffer.from(doc.output('arraybuffer'))
+  const { text } = await pdfParse(buffer)
+  return text
+}
 
 const contractor: Contractor = {
   name: 'Ada Lovelace',
@@ -41,24 +58,24 @@ describe('generateInvoicePdf', () => {
     expect(blob.type).toBe('application/pdf')
   })
 
-  it('embeds the contractor, client, dates, and item text in the PDF content', () => {
+  it('embeds the contractor, client, dates, and item text in the PDF content', async () => {
     const draft = makeDraft()
-    const raw = generateInvoicePdf(contractor, draft).output()
+    const text = await extractText(generateInvoicePdf(contractor, draft))
 
-    expect(raw).toContain(contractor.name)
-    expect(raw).toContain(contractor.companyName)
-    expect(raw).toContain(draft.client.name)
-    expect(raw).toContain(draft.client.companyName)
-    expect(raw).toContain(draft.invoiceNumber)
-    expect(raw).toContain(draft.invoiceDate)
-    expect(raw).toContain(draft.items[0].refNo)
-    expect(raw).toContain(draft.items[0].description)
+    expect(text).toContain(contractor.name)
+    expect(text).toContain(contractor.companyName)
+    expect(text).toContain(draft.client.name)
+    expect(text).toContain(draft.client.companyName)
+    expect(text).toContain(draft.invoiceNumber)
+    expect(text).toContain(formatLongDate(draft.invoiceDate))
+    expect(text).toContain(draft.items[0].refNo)
+    expect(text).toContain(draft.items[0].description)
   })
 
-  it('formats amounts using the client currency, not a raw number only', () => {
-    const raw = generateInvoicePdf(contractor, makeDraft()).output()
+  it('formats amounts using the client currency, not a raw number only', async () => {
+    const text = await extractText(generateInvoicePdf(contractor, makeDraft()))
     // 2 * 100 = 200.00, formatted as USD.
-    expect(raw).toContain('$200.00')
+    expect(text).toContain('$200.00')
   })
 
   it('supports multiple invoice items', () => {

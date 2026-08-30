@@ -56,7 +56,7 @@ describe('InvoicePage', () => {
 
   it('pre-fills the invoice number from the current sequence, unpadded', () => {
     render(<InvoicePage />)
-    expect(screen.getByLabelText('Invoice number')).toHaveValue('INV-1')
+    expect(screen.getByLabelText('Invoice number')).toHaveValue('1')
   })
 
   it('allows manually editing the invoice number', () => {
@@ -79,8 +79,7 @@ describe('InvoicePage', () => {
     fireEvent.change(screen.getByLabelText('Quantity'), { target: { value: '3' } })
     fireEvent.change(screen.getByLabelText('Rate'), { target: { value: '50' } })
 
-    // "150.00" now appears both in the entry row's Amount and in the live
-    // preview's item/Amount Due cells.
+    // "150.00" appears in both the live preview's item and Amount Due cells.
     expect(screen.getAllByText('150.00').length).toBeGreaterThanOrEqual(2)
     expect(screen.getByText('Total: 150.00')).toBeInTheDocument()
   })
@@ -160,8 +159,8 @@ describe('InvoicePage', () => {
       render(<InvoicePage />)
       fireEvent.change(screen.getByLabelText('Invoice date'), { target: { value: '2026-01-01' } })
 
-      expect(screen.getAllByText('INV-1').length).toBeGreaterThanOrEqual(1)
-      expect(screen.getByText('2026-01-01')).toBeInTheDocument()
+      expect(screen.getByText('Invoice # 1')).toBeInTheDocument()
+      expect(screen.getByText('January 1, 2026')).toBeInTheDocument()
     })
 
     it('formats Amount Due using the selected client currency', () => {
@@ -197,12 +196,12 @@ describe('InvoicePage', () => {
         expect(pdfService.generateInvoicePdf).toHaveBeenCalledTimes(1)
       })
       const [, draft] = (pdfService.generateInvoicePdf as jest.Mock).mock.calls[0]
-      expect(draft.invoiceNumber).toBe('INV-1')
+      expect(draft.invoiceNumber).toBe('1')
       expect(draft.client.name).toBe('Grace Hopper')
       expect(draft.items).toHaveLength(1)
 
       const generatedDoc = (pdfService.generateInvoicePdf as jest.Mock).mock.results[0].value
-      expect(generatedDoc.save).toHaveBeenCalledWith('invoice-INV-1.pdf')
+      expect(generatedDoc.save).toHaveBeenCalledWith('invoice-1.pdf')
     })
 
     it('does not generate a PDF when the draft is invalid, and shows validation errors instead', async () => {
@@ -308,7 +307,7 @@ describe('InvoicePage', () => {
       first.unmount()
 
       render(<InvoicePage />)
-      expect(screen.getByLabelText('Invoice number')).toHaveValue('INV-2')
+      expect(screen.getByLabelText('Invoice number')).toHaveValue('2')
     })
   })
 })
