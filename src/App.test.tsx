@@ -5,7 +5,7 @@ describe('App', () => {
   it('renders the home page at the root route', () => {
     render(<App />)
     expect(
-      screen.getByRole('heading', { name: 'InvoicePilot' }),
+      screen.getByRole('heading', { name: 'Invoice Pilot' }),
     ).toBeInTheDocument()
   })
 })

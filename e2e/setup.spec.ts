@@ -22,47 +22,83 @@ async function fillContractorForm(page: import('@playwright/test').Page, values:
 
 test('shows validation errors when saving an empty form', async ({ page }) => {
   await page.goto('/')
-  await page.getByRole('link', { name: 'Setup' }).click()
+  await page.getByRole('link', { name: 'Setup Data' }).click()
   await page.getByRole('button', { name: 'Save' }).click()
   await expect(page.getByRole('alert').first()).toBeVisible()
 })
 
-test('saves contractor information and unlocks Create Invoice', async ({ page }) => {
+test('saving contractor information goes straight to Clients', async ({ page }) => {
   await page.goto('/')
-  await page.getByRole('link', { name: 'Setup' }).click()
+  await page.getByRole('link', { name: 'Setup Data' }).click()
 
   await fillContractorForm(page, contractor)
   await page.getByRole('button', { name: 'Save' }).click()
 
-  await expect(page.getByRole('status')).toHaveText('Contractor information saved.')
+  await expect(page).toHaveURL('/clients')
 
   const stored = await page.evaluate(() =>
     JSON.parse(localStorage.getItem('invoicepilot:app-data') ?? 'null'),
   )
   expect(stored.contractor).toEqual(contractor)
+})
 
-  // Contractor now configured but no clients yet: Create Invoice should
-  // redirect to Clients instead of Setup.
-  await page.getByRole('link', { name: 'InvoicePilot' }).click()
-  await page.getByRole('link', { name: 'Create Invoice' }).click()
+test('keeps Create Invoice disabled when a contractor exists but no client is registered', async ({
+  page,
+}) => {
+  await page.addInitScript((data) => {
+    if (!localStorage.getItem('invoicepilot:app-data')) {
+      localStorage.setItem(
+        'invoicepilot:app-data',
+        JSON.stringify({ contractor: data, clients: [], invoiceSequence: 1 }),
+      )
+    }
+  }, contractor)
+  await page.goto('/')
+
+  // Contractor configured but no clients yet: Create Invoice stays disabled.
+  const createInvoiceButton = page.getByRole('button', { name: 'Create Invoice' })
+  await expect(createInvoiceButton).toBeDisabled()
+
+  // Resubmitting the (already-configured) contractor form is the way back
+  // to Clients to register one.
+  await page.getByRole('link', { name: 'Setup Data' }).click()
+  await page.getByRole('button', { name: 'Save' }).click()
   await expect(page).toHaveURL('/clients')
 })
 
 test('pre-fills and updates existing contractor information', async ({ page }) => {
+  const client = {
+    id: 'client-1',
+    name: 'Grace Hopper',
+    companyName: 'Compilers Inc',
+    streetAddress: '1 Turing Way',
+    city: 'Arlington',
+    state: 'VA',
+    country: 'United States',
+    contactNumber: '+1 555-0100',
+    currency: 'USD',
+  }
+  await page.addInitScript(
+    ({ contractor, client }) => {
+      if (!localStorage.getItem('invoicepilot:app-data')) {
+        localStorage.setItem(
+          'invoicepilot:app-data',
+          JSON.stringify({ contractor, clients: [client], invoiceSequence: 1 }),
+        )
+      }
+    },
+    { contractor, client },
+  )
   await page.goto('/')
-  await page.evaluate((data) => {
-    localStorage.setItem(
-      'invoicepilot:app-data',
-      JSON.stringify({ contractor: data, clients: [], invoiceSequence: 1 }),
-    )
-  }, contractor)
 
-  await page.getByRole('link', { name: 'Setup' }).click()
+  await page.getByRole('link', { name: 'Setup Data' }).click()
   await expect(page.getByLabel('Contractor name')).toHaveValue(contractor.name)
 
   await page.getByLabel('City').fill('Manchester')
   await page.getByRole('button', { name: 'Save' }).click()
-  await expect(page.getByRole('status')).toBeVisible()
+
+  // Saving always goes to Clients, regardless of how many are registered.
+  await expect(page).toHaveURL('/clients')
 
   const stored = await page.evaluate(() =>
     JSON.parse(localStorage.getItem('invoicepilot:app-data') ?? 'null'),

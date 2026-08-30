@@ -24,8 +24,9 @@ const currencyOptions = CURRENCIES.map((currency) => ({
 interface ClientFormProps {
   initialValues?: ClientFormValues
   onSubmit: (values: ClientFormValues) => void
-  onCancel: () => void
+  onCancel?: () => void
   submitLabel: string
+  disabled?: boolean
 }
 
 export function ClientForm({
@@ -33,6 +34,7 @@ export function ClientForm({
   onSubmit,
   onCancel,
   submitLabel,
+  disabled = false,
 }: ClientFormProps) {
   const {
     register,
@@ -46,7 +48,7 @@ export function ClientForm({
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="flex max-w-md flex-col gap-4 rounded-md border border-gray-200 p-4"
+      className="flex max-w-md flex-col gap-4"
       noValidate
     >
       <TextField label="Client name" registration={register('name')} error={errors.name?.message} />
@@ -79,17 +81,20 @@ export function ClientForm({
       <div className="flex gap-3">
         <button
           type="submit"
-          className="rounded-md bg-gray-900 px-4 py-2 font-medium text-white hover:bg-gray-700"
+          disabled={disabled}
+          className="cursor-pointer rounded-md bg-gray-900 px-4 py-2 font-medium text-white hover:bg-gray-700 disabled:cursor-not-allowed disabled:bg-gray-300"
         >
           {submitLabel}
         </button>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="rounded-md border border-gray-300 px-4 py-2 font-medium hover:bg-gray-50"
-        >
-          Cancel
-        </button>
+        {onCancel && (
+          <button
+            type="button"
+            onClick={onCancel}
+            className="cursor-pointer rounded-md border border-gray-300 px-4 py-2 font-medium hover:bg-gray-50"
+          >
+            Cancel
+          </button>
+        )}
       </div>
     </form>
   )

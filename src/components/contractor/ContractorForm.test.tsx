@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import * as storageService from '../../services/storage'
 import { getAppData } from '../../services/storage'
 import type { Contractor } from '../../types'
@@ -32,13 +33,32 @@ const contractor: Contractor = {
   contactNumber: '+44 20 7946 0958',
 }
 
+function renderForm(contractorProp: Contractor | null) {
+  return render(
+    <MemoryRouter>
+      <ContractorForm contractor={contractorProp} />
+    </MemoryRouter>,
+  )
+}
+
+function renderFormWithRoutes(contractorProp: Contractor | null) {
+  return render(
+    <MemoryRouter initialEntries={['/setup']}>
+      <Routes>
+        <Route path="/setup" element={<ContractorForm contractor={contractorProp} />} />
+        <Route path="/clients" element={<div>Clients Page</div>} />
+      </Routes>
+    </MemoryRouter>,
+  )
+}
+
 describe('ContractorForm', () => {
   beforeEach(() => {
     localStorage.clear()
   })
 
   it('shows validation errors when required fields are missing', async () => {
-    render(<ContractorForm contractor={null} />)
+    renderForm(null)
 
     fireEvent.click(screen.getByRole('button', { name: 'Save' }))
 
@@ -46,37 +66,49 @@ describe('ContractorForm', () => {
     expect(getAppData()).toBeNull()
   })
 
-  it('persists the contractor and shows a confirmation on valid submit', async () => {
-    render(<ContractorForm contractor={null} />)
+  it('navigates to Clients after a successful save', async () => {
+    renderFormWithRoutes(null)
 
     fillForm(contractor)
     fireEvent.click(screen.getByRole('button', { name: 'Save' }))
 
-    await waitFor(() => {
-      expect(screen.getByRole('status')).toHaveTextContent('saved')
-    })
-    expect(getAppData()).toEqual({
-      contractor,
-      clients: [],
-      invoiceSequence: 1,
-    })
+    expect(await screen.findByText('Clients Page')).toBeInTheDocument()
+    expect(getAppData()?.contractor).toEqual(contractor)
+  })
+
+  it('navigates to Clients after saving an edit, even when clients already exist', async () => {
+    localStorage.setItem(
+      'invoicepilot:app-data',
+      JSON.stringify({
+        contractor,
+        clients: [
+          {
+            id: '1',
+            name: 'Grace Hopper',
+            companyName: 'Compilers Inc',
+            streetAddress: '1 Turing Way',
+            city: 'Arlington',
+            state: 'VA',
+            country: 'United States',
+            contactNumber: '+1 555-0100',
+            currency: 'USD',
+          },
+        ],
+        invoiceSequence: 1,
+      }),
+    )
+    renderFormWithRoutes(contractor)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }))
+
+    expect(await screen.findByText('Clients Page')).toBeInTheDocument()
   })
 
   it('pre-fills the form when an existing contractor is passed in', () => {
-    render(<ContractorForm contractor={contractor} />)
+    renderForm(contractor)
 
     expect(screen.getByLabelText('Contractor name')).toHaveValue(contractor.name)
     expect(screen.getByLabelText('Contact number')).toHaveValue(contractor.contactNumber)
-  })
-
-  it('clears the confirmation once the form is edited again', async () => {
-    render(<ContractorForm contractor={contractor} />)
-    fireEvent.click(screen.getByRole('button', { name: 'Save' }))
-    await waitFor(() => expect(screen.getByRole('status')).toBeInTheDocument())
-
-    fireEvent.change(screen.getByLabelText('City'), { target: { value: 'Manchester' } })
-
-    expect(screen.queryByRole('status')).not.toBeInTheDocument()
   })
 
   it('shows an error message when saving fails, without crashing', async () => {
@@ -84,8 +116,7 @@ describe('ContractorForm', () => {
       throw new Error('boom')
     })
 
-    render(<ContractorForm contractor={null} />)
-    fillForm(contractor)
+    renderForm(contractor)
     fireEvent.click(screen.getByRole('button', { name: 'Save' }))
 
     await waitFor(() => {
@@ -93,7 +124,6 @@ describe('ContractorForm', () => {
         'Failed to save contractor information. Please try again.',
       )
     })
-    expect(screen.queryByRole('status')).not.toBeInTheDocument()
 
     jest.restoreAllMocks()
   })
@@ -103,8 +133,7 @@ describe('ContractorForm', () => {
       throw new Error('boom')
     })
 
-    render(<ContractorForm contractor={null} />)
-    fillForm(contractor)
+    renderForm(contractor)
     fireEvent.click(screen.getByRole('button', { name: 'Save' }))
     await waitFor(() => expect(screen.getByRole('alert')).toBeInTheDocument())
 

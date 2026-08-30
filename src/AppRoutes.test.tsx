@@ -52,7 +52,7 @@ describe('route guards', () => {
     renderAt('/setup')
     await waitFor(() =>
       expect(
-        screen.getByRole('heading', { name: 'InvoicePilot' }),
+        screen.getByRole('heading', { name: 'Invoice Pilot' }),
       ).toBeInTheDocument(),
     )
   })
@@ -61,7 +61,7 @@ describe('route guards', () => {
     renderAt('/clients')
     await waitFor(() =>
       expect(
-        screen.getByRole('heading', { name: 'InvoicePilot' }),
+        screen.getByRole('heading', { name: 'Invoice Pilot' }),
       ).toBeInTheDocument(),
     )
   })
@@ -70,7 +70,7 @@ describe('route guards', () => {
     renderAt('/invoice')
     await waitFor(() =>
       expect(
-        screen.getByRole('heading', { name: 'InvoicePilot' }),
+        screen.getByRole('heading', { name: 'Invoice Pilot' }),
       ).toBeInTheDocument(),
     )
   })
@@ -79,28 +79,36 @@ describe('route guards', () => {
     renderAt('/does-not-exist')
     await waitFor(() =>
       expect(
-        screen.getByRole('heading', { name: 'InvoicePilot' }),
+        screen.getByRole('heading', { name: 'Invoice Pilot' }),
       ).toBeInTheDocument(),
     )
   })
 
   it('lets in-app navigation to Setup through with no contractor configured', () => {
     renderAt('/')
-    fireEvent.click(screen.getByRole('link', { name: 'Setup' }))
+    fireEvent.click(screen.getByRole('link', { name: 'Setup Data' }))
     expect(screen.getByRole('heading', { name: 'Setup' })).toBeInTheDocument()
   })
 
-  it('redirects Create Invoice to Setup when no contractor is configured', () => {
+  it('disables Create Invoice with an explanatory message when no contractor is configured', () => {
     renderAt('/')
-    fireEvent.click(screen.getByRole('link', { name: 'Create Invoice' }))
-    expect(screen.getByRole('heading', { name: 'Setup' })).toBeInTheDocument()
+    const createInvoiceButton = screen.getByRole('button', { name: 'Create Invoice' })
+    expect(createInvoiceButton).toBeDisabled()
+    expect(createInvoiceButton).toHaveAttribute(
+      'title',
+      'Complete Setup and add a client before creating an invoice.',
+    )
   })
 
-  it('redirects Create Invoice to Clients when the contractor exists but no client is registered', () => {
+  it('disables Create Invoice with an explanatory message when the contractor exists but no client is registered', () => {
     seedAppData({ contractor: makeContractor(), clients: [], invoiceSequence: 1 })
     renderAt('/')
-    fireEvent.click(screen.getByRole('link', { name: 'Create Invoice' }))
-    expect(screen.getByRole('heading', { name: 'Clients' })).toBeInTheDocument()
+    const createInvoiceButton = screen.getByRole('button', { name: 'Create Invoice' })
+    expect(createInvoiceButton).toBeDisabled()
+    expect(createInvoiceButton).toHaveAttribute(
+      'title',
+      'Complete Setup and add a client before creating an invoice.',
+    )
   })
 
   it('allows Create Invoice through when a contractor and a client exist', () => {
@@ -124,7 +132,7 @@ describe('data reset', () => {
 
   it('shows the home page normally when there is no stored data', () => {
     renderAt('/')
-    expect(screen.getByRole('heading', { name: 'InvoicePilot' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Invoice Pilot' })).toBeInTheDocument()
     expect(screen.queryByText("We couldn't read your saved data")).not.toBeInTheDocument()
   })
 
@@ -134,7 +142,7 @@ describe('data reset', () => {
     renderAt('/')
 
     expect(screen.getByText("We couldn't read your saved data")).toBeInTheDocument()
-    expect(screen.queryByRole('link', { name: 'Setup' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Setup Data' })).not.toBeInTheDocument()
   })
 
   it('shows the corrupted-data notice regardless of which route was requested', () => {
@@ -146,18 +154,23 @@ describe('data reset', () => {
   })
 
   it('the corrupted-data notice offers the same Delete All Data control', () => {
-    window.confirm = jest.fn().mockReturnValue(true)
     localStorage.setItem(STORAGE_KEY, '{not valid json')
 
     renderAt('/')
     fireEvent.click(screen.getByRole('button', { name: 'Delete All Data' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Delete' }))
 
-    expect(window.confirm).toHaveBeenCalled()
     expect(localStorage.getItem(STORAGE_KEY)).toBeNull()
   })
 
-  it('offers Delete All Data from the header on a normal page too', () => {
+  it('offers Delete All Data on the home page', () => {
     renderAt('/')
     expect(screen.getByRole('button', { name: 'Delete All Data' })).toBeInTheDocument()
+  })
+
+  it('does not offer Delete All Data on other pages', () => {
+    renderAt('/')
+    fireEvent.click(screen.getByRole('link', { name: 'Setup Data' }))
+    expect(screen.queryByRole('button', { name: 'Delete All Data' })).not.toBeInTheDocument()
   })
 })

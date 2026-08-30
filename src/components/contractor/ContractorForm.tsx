@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useNavigate } from 'react-router-dom'
 import { TextField } from '../forms/TextField'
 import { contractorSchema, type ContractorFormValues } from '../../schemas/contractor'
 import { saveContractor } from '../../services/storage'
@@ -17,7 +18,7 @@ const emptyContractor: ContractorFormValues = {
 }
 
 export function ContractorForm({ contractor }: { contractor: Contractor | null }) {
-  const [saved, setSaved] = useState(false)
+  const navigate = useNavigate()
   const [saveError, setSaveError] = useState<string | null>(null)
   const {
     register,
@@ -31,10 +32,8 @@ export function ContractorForm({ contractor }: { contractor: Contractor | null }
   function onSubmit(values: ContractorFormValues) {
     try {
       saveContractor(values)
-      setSaved(true)
-      setSaveError(null)
+      navigate('/clients')
     } catch {
-      setSaved(false)
       setSaveError('Failed to save contractor information. Please try again.')
     }
   }
@@ -42,11 +41,8 @@ export function ContractorForm({ contractor }: { contractor: Contractor | null }
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      onChange={() => {
-        setSaved(false)
-        setSaveError(null)
-      }}
-      className="flex max-w-md flex-col gap-4"
+      onChange={() => setSaveError(null)}
+      className="flex w-full max-w-[30.8rem] flex-col gap-4"
       noValidate
     >
       <TextField label="Contractor name" registration={register('name')} error={errors.name?.message} />
@@ -72,16 +68,11 @@ export function ContractorForm({ contractor }: { contractor: Contractor | null }
 
       <button
         type="submit"
-        className="rounded-md bg-gray-900 px-4 py-2 font-medium text-white hover:bg-gray-700"
+        className="cursor-pointer rounded-md bg-gray-900 px-4 py-2 font-medium text-white hover:bg-gray-700"
       >
         Save
       </button>
 
-      {saved && (
-        <p role="status" className="text-sm text-green-700">
-          Contractor information saved.
-        </p>
-      )}
       {saveError && (
         <p role="alert" className="text-sm text-red-600">
           {saveError}

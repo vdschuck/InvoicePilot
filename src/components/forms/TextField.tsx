@@ -9,11 +9,11 @@ interface TextFieldProps {
 
 export function TextField({ label, registration, error, type = 'text' }: TextFieldProps) {
   return (
-    <label className="flex flex-col gap-1 text-sm">
+    <label className="flex w-full flex-col gap-1 text-sm">
       <span className="font-medium text-gray-700">{label}</span>
       <input
         type={type}
-        className="rounded-md border border-gray-300 px-3 py-2 text-base"
+        className="w-full rounded-md border border-gray-300 px-3 py-2 text-base"
         {...registration}
       />
       {error && (

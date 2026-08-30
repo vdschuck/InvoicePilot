@@ -3,8 +3,20 @@ import type { AppData, Client, Contractor } from '../types'
 const APP_DATA_KEY = 'invoicepilot:app-data'
 export const MAX_CLIENTS = 3
 
+function readAppDataRaw(): string | null {
+  return localStorage.getItem(APP_DATA_KEY)
+}
+
+function writeAppData(appData: AppData): void {
+  localStorage.setItem(APP_DATA_KEY, JSON.stringify(appData))
+}
+
+function removeAppData(): void {
+  localStorage.removeItem(APP_DATA_KEY)
+}
+
 export function getAppData(): AppData | null {
-  const raw = localStorage.getItem(APP_DATA_KEY)
+  const raw = readAppDataRaw()
   if (!raw) return null
 
   try {
@@ -15,7 +27,7 @@ export function getAppData(): AppData | null {
 }
 
 export function isAppDataCorrupted(): boolean {
-  const raw = localStorage.getItem(APP_DATA_KEY)
+  const raw = readAppDataRaw()
   if (!raw) return false
 
   try {
@@ -27,19 +39,17 @@ export function isAppDataCorrupted(): boolean {
 }
 
 export function clearAppData(): void {
-  localStorage.removeItem(APP_DATA_KEY)
+  removeAppData()
 }
 
 export function saveContractor(contractor: Contractor): void {
   const existing = getAppData()
 
-  const appData: AppData = {
+  writeAppData({
     contractor,
     clients: existing?.clients ?? [],
     invoiceSequence: existing?.invoiceSequence ?? 1,
-  }
-
-  localStorage.setItem(APP_DATA_KEY, JSON.stringify(appData))
+  })
 }
 
 function requireAppData(): AppData {
@@ -51,7 +61,7 @@ function requireAppData(): AppData {
 }
 
 function saveClients(appData: AppData, clients: Client[]): Client[] {
-  localStorage.setItem(APP_DATA_KEY, JSON.stringify({ ...appData, clients }))
+  writeAppData({ ...appData, clients })
   return clients
 }
 
@@ -88,7 +98,7 @@ export function deleteClient(id: string): Client[] {
 export function advanceInvoiceSequence(): number {
   const appData = requireAppData()
   const invoiceSequence = appData.invoiceSequence + 1
-  localStorage.setItem(APP_DATA_KEY, JSON.stringify({ ...appData, invoiceSequence }))
+  writeAppData({ ...appData, invoiceSequence })
   return invoiceSequence
 }
 

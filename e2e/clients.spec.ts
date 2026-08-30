@@ -22,16 +22,25 @@ const clientA = {
 }
 
 async function goToClientsPage(page: Page) {
-  await page.goto('/')
-  await page.evaluate((data) => {
-    localStorage.setItem(
-      'invoicepilot:app-data',
-      JSON.stringify({ contractor: data, clients: [], invoiceSequence: 1 }),
-    )
+  // Seed via addInitScript (runs before the app's own scripts) so the home
+  // page's initial render already reflects the contractor being configured,
+  // rather than seeding after the page has already rendered. Guarded so a
+  // later navigation on this page doesn't re-run the seed and wipe out
+  // anything the test has since added.
+  await page.addInitScript((data) => {
+    if (!localStorage.getItem('invoicepilot:app-data')) {
+      localStorage.setItem(
+        'invoicepilot:app-data',
+        JSON.stringify({ contractor: data, clients: [], invoiceSequence: 1 }),
+      )
+    }
   }, contractor)
-  // The only in-app path to /clients right now is the redirect Create
-  // Invoice takes when a contractor exists but no client is registered.
-  await page.getByRole('link', { name: 'Create Invoice' }).click()
+  await page.goto('/')
+  // Create Invoice stays disabled until a client exists, so the only in-app
+  // path to /clients is resubmitting the already-configured contractor form,
+  // which always navigates to /clients on success.
+  await page.getByRole('link', { name: 'Setup Data' }).click()
+  await page.getByRole('button', { name: 'Save' }).click()
   await expect(page).toHaveURL('/clients')
 }
 
@@ -49,14 +58,12 @@ async function fillClientForm(page: Page, values: typeof clientA) {
 test('shows validation errors when saving an empty client form', async ({ page }) => {
   await goToClientsPage(page)
   await page.getByRole('button', { name: 'Add Client' }).click()
-  await page.getByRole('button', { name: 'Add Client' }).click()
   await expect(page.getByRole('alert').first()).toBeVisible()
 })
 
 test('adds a client and unlocks Create Invoice', async ({ page }) => {
   await goToClientsPage(page)
 
-  await page.getByRole('button', { name: 'Add Client' }).click()
   await fillClientForm(page, clientA)
   await page.getByRole('button', { name: 'Add Client' }).click()
 
@@ -72,7 +79,6 @@ test('enforces the maximum of 3 clients in the UI', async ({ page }) => {
   await goToClientsPage(page)
 
   for (let i = 1; i <= 3; i += 1) {
-    await page.getByRole('button', { name: 'Add Client' }).click()
     await fillClientForm(page, { ...clientA, name: `Client ${i}` })
     await page.getByRole('button', { name: 'Add Client' }).click()
     await expect(page.getByText(`Client ${i}`)).toBeVisible()
@@ -84,7 +90,6 @@ test('enforces the maximum of 3 clients in the UI', async ({ page }) => {
 
 test('edits an existing client', async ({ page }) => {
   await goToClientsPage(page)
-  await page.getByRole('button', { name: 'Add Client' }).click()
   await fillClientForm(page, clientA)
   await page.getByRole('button', { name: 'Add Client' }).click()
   await expect(page.getByText('Grace Hopper')).toBeVisible()
@@ -97,16 +102,31 @@ test('edits an existing client', async ({ page }) => {
   await expect(page.getByText('Grace Hopper', { exact: true })).toHaveCount(0)
 })
 
-test('deletes a client after confirming', async ({ page }) => {
+test('deletes a client after confirming in the custom dialog', async ({ page }) => {
   await goToClientsPage(page)
-  await page.getByRole('button', { name: 'Add Client' }).click()
   await fillClientForm(page, clientA)
   await page.getByRole('button', { name: 'Add Client' }).click()
   await expect(page.getByText('Grace Hopper')).toBeVisible()
 
-  page.once('dialog', (dialog) => dialog.accept())
   await page.getByRole('button', { name: 'Delete', exact: true }).click()
+  const dialog = page.getByRole('alertdialog')
+  await expect(dialog).toBeVisible()
+  await dialog.getByRole('button', { name: 'Delete', exact: true }).click()
 
   await expect(page.getByText('Grace Hopper')).toHaveCount(0)
   await expect(page.getByText('0 / 3')).toBeVisible()
+})
+
+test('does not delete a client when the confirmation dialog is cancelled', async ({ page }) => {
+  await goToClientsPage(page)
+  await fillClientForm(page, clientA)
+  await page.getByRole('button', { name: 'Add Client' }).click()
+  await expect(page.getByText('Grace Hopper')).toBeVisible()
+
+  await page.getByRole('button', { name: 'Delete', exact: true }).click()
+  const dialog = page.getByRole('alertdialog')
+  await dialog.getByRole('button', { name: 'Cancel' }).click()
+
+  await expect(dialog).toHaveCount(0)
+  await expect(page.getByText('Grace Hopper')).toBeVisible()
 })

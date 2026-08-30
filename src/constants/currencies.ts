@@ -1,4 +1,4 @@
-export interface CurrencyOption {
+interface CurrencyOption {
   code: string
   name: string
 }

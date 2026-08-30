@@ -20,7 +20,7 @@ export interface Client {
   currency: string
 }
 
-export interface InvoiceItem {
+interface InvoiceItem {
   id: string
   refNo: string
   description: string

@@ -11,8 +11,9 @@ The home page displays two buttons:
     Setup
     Create Invoice
 
-User clicks Setup to configure the contractor, or Create Invoice to
-start creating an invoice.
+User clicks Setup to configure the contractor, or Create Invoice to start creating an invoice.
+
+If the contractor has not been configured yet, the Create Invoice button is disabled. Hovering over it shows a message explaining that Setup must be completed first.
 
 ---
 
@@ -26,7 +27,7 @@ User enters contractor information.
 
 User saves information.
 
-User can then register clients.
+After saving contractor information, the user is always taken to the Clients screen.
 
 ---
 
@@ -84,9 +85,7 @@ User opens Create Invoice.
 
 The application immediately generates the next invoice number.
 
-Example:
-
-    INV-7
+Example: 7
 
 The invoice number field is populated.
 
