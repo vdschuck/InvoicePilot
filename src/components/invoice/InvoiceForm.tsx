@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { useWatch } from 'react-hook-form'
-import { generateInvoicePdf, getInvoiceFilename } from '../../services/pdf'
 import { advanceInvoiceSequence } from '../../services/storage'
 import type { Client, Contractor, InvoiceDraft } from '../../types'
 import { calculateInvoiceTotal, toSafeNumber } from '../../utils/calculations'
@@ -43,7 +42,7 @@ export function InvoiceForm({ contractor, clients, draftForm }: InvoiceFormProps
   const clientOptions = clients.map((client) => ({ value: client.id, label: client.name }))
   const itemsError = errors.items?.root?.message ?? errors.items?.message
 
-  function handleDownload(values: InvoiceFormValues) {
+  async function handleDownload(values: InvoiceFormValues) {
     const client = clients.find((candidate) => candidate.id === values.clientId)
     if (!client) {
       setDownloadError('Failed to generate the PDF. Please try again.')
@@ -60,6 +59,11 @@ export function InvoiceForm({ contractor, clients, draftForm }: InvoiceFormProps
     }
 
     try {
+      // Loaded on demand rather than imported at the top of the file: jsPDF
+      // (plus the embedded Inter font and jsPDF's own html2canvas/dompurify
+      // dependencies) is the single largest chunk in the app, and is only
+      // needed once the user actually downloads an invoice.
+      const { generateInvoicePdf, getInvoiceFilename } = await import('../../services/pdf')
       const doc = generateInvoicePdf(contractor, draft)
       doc.save(getInvoiceFilename(draft.invoiceNumber))
 

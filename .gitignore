@@ -12,6 +12,11 @@ dist
 dist-ssr
 *.local
 
+# Firebase
+.firebase
+.firebaserc
+firebase.json
+
 # Testing
 coverage
 playwright-report

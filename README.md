@@ -38,3 +38,23 @@ npm run lint        # Run ESLint
 npm test            # Run unit tests (Jest)
 npm run test:e2e    # Run end-to-end tests (Playwright)
 ```
+
+## Deploying to Firebase Hosting
+
+This repo's `firebase.json` is already configured to serve the `dist/`
+folder produced by `npm run build`, with all routes rewritten to
+`index.html` so client-side routing works on refresh and direct links.
+
+```bash
+# One-time: authenticate the Firebase CLI
+firebase login
+
+# One-time: only if this repo isn't already linked to a Firebase project
+firebase init
+
+# Build the production bundle
+npm run build
+
+# Deploy the contents of dist/ to Hosting
+firebase deploy
+```
