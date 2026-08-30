@@ -7,7 +7,6 @@ import { formatCurrency } from '../utils/currency'
 import { formatLongDate } from '../utils/dateFormat'
 
 const MARGIN_X = 14
-const PAGE_RIGHT_X = 196
 const FONT_NAME = 'Inter'
 const HEADER_GRAY: [number, number, number] = [243, 244, 246]
 const BORDER_GRAY: [number, number, number] = [229, 231, 235]
@@ -27,22 +26,19 @@ function registerInterFont(doc: jsPDF): void {
   doc.addFont('Inter-Bold.ttf', FONT_NAME, 'bold')
 }
 
-function writeRightAlignedPair(
+function writeLabeledLines(
   doc: jsPDF,
+  x: number,
   y: number,
   label: string,
-  value: string,
-  gap: number,
-  labelStyle: 'normal' | 'bold' = 'bold',
-  valueStyle: 'normal' | 'bold' = 'normal',
-): void {
-  doc.setFont(FONT_NAME, valueStyle)
-  const valueWidth = doc.getTextWidth(value)
-  doc.text(value, PAGE_RIGHT_X, y, { align: 'right' })
-
-  doc.setFont(FONT_NAME, labelStyle)
-  const labelX = PAGE_RIGHT_X - valueWidth - gap
-  doc.text(label, labelX, y, { align: 'right' })
+  lines: string[],
+): number {
+  doc.setFontSize(10)
+  doc.setFont(FONT_NAME, 'bold')
+  doc.text(label, x, y)
+  doc.setFont(FONT_NAME, 'normal')
+  writeLines(doc, x, y + 6, lines)
+  return y + 6 + lines.length * 5 + 4
 }
 
 export function generateInvoicePdf(contractor: Contractor, draft: InvoiceDraft): jsPDF {
@@ -67,6 +63,7 @@ export function generateInvoicePdf(contractor: Contractor, draft: InvoiceDraft):
     contractor.companyName,
     contractor.streetAddress,
     `${contractor.city}, ${contractor.state}, ${contractor.country}`,
+    contractor.zipCode,
     contractor.contactNumber,
   ])
 
@@ -114,9 +111,6 @@ export function generateInvoicePdf(contractor: Contractor, draft: InvoiceDraft):
   const total = calculateInvoiceTotal(draft.items)
   const finalY = (doc as DocumentWithAutoTable).lastAutoTable?.finalY ?? 80
 
-  doc.setDrawColor(...BORDER_GRAY)
-  doc.line(MARGIN_X, finalY + 8, PAGE_RIGHT_X, finalY + 8)
-
   let datesY = finalY + 18
   doc.setFontSize(10)
   const dateRows: [string, string][] = [
@@ -140,18 +134,27 @@ export function generateInvoicePdf(contractor: Contractor, draft: InvoiceDraft):
     datesY += 6
   })
 
-  const totalsY = datesY + 6
+  const totalsY = datesY + 10
+  let leftY = totalsY
 
   if (draft.client.bankingDetails) {
-    doc.setFontSize(10)
-    doc.setFont(FONT_NAME, 'bold')
-    doc.text('Client Banking Information', MARGIN_X, totalsY)
-    doc.setFont(FONT_NAME, 'normal')
-    writeLines(doc, MARGIN_X, totalsY + 6, draft.client.bankingDetails.split('\n'))
+    leftY = writeLabeledLines(
+      doc,
+      MARGIN_X,
+      leftY,
+      'Client Banking Information',
+      draft.client.bankingDetails.split('\n'),
+    )
+  }
+
+  if (contractor.paymentInformation) {
+    writeLabeledLines(doc, MARGIN_X, leftY, 'Payment Information:', contractor.paymentInformation.split('\n'))
   }
 
   doc.setFontSize(13)
-  writeRightAlignedPair(doc, totalsY, 'Amount Due:', formatCurrency(total, currency), 6, 'bold', 'bold')
+  doc.setFont(FONT_NAME, 'bold')
+  doc.text('Amount Due:', labelRightX, totalsY, { align: 'right' })
+  doc.text(formatCurrency(total, currency), valueX, totalsY)
 
   return doc
 }

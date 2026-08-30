@@ -11,7 +11,9 @@ export const contractorSchema = z.object({
   city: requiredField('City'),
   state: requiredField('State'),
   country: requiredField('Country'),
+  zipCode: requiredField('Zip code'),
   contactNumber: requiredField('Contact number'),
+  paymentInformation: z.string().trim().optional(),
 }) satisfies z.ZodType<Contractor>
 
 export type ContractorFormValues = z.infer<typeof contractorSchema>

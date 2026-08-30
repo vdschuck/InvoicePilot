@@ -21,6 +21,7 @@ test('a new user can set up, register a client, and download an invoice', async 
   await page.getByLabel('City').fill('London')
   await page.getByLabel('State').fill('London')
   await page.getByLabel('Country').fill('United Kingdom')
+  await page.getByLabel('Zip code').fill('EC1A 1BB')
   await page.getByLabel('Contact number').fill('+44 20 7946 0958')
   await page.getByRole('button', { name: 'Save' }).click()
 

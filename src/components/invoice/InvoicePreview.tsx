@@ -39,6 +39,7 @@ export function InvoicePreview({ contractor, clients, control }: InvoicePreviewP
           <p className="text-sm">
             {contractor.city}, {contractor.state}, {contractor.country}
           </p>
+          <p className="text-sm">{contractor.zipCode}</p>
           <p className="text-sm">{contractor.contactNumber}</p>
         </div>
         <div>
@@ -86,7 +87,7 @@ export function InvoicePreview({ contractor, clients, control }: InvoicePreviewP
         </table>
       </div>
 
-      <div className="grid grid-cols-[auto_auto] items-baseline justify-end gap-x-2 gap-y-1 self-end border-t border-gray-200 pt-4">
+      <div className="grid grid-cols-[auto_auto] items-baseline justify-end gap-x-2 gap-y-1 self-end">
         <h3 className="text-right text-sm font-semibold">Invoice Date:</h3>
         <p className="text-sm">{values.invoiceDate ? formatLongDate(values.invoiceDate) : '—'}</p>
         <h3 className="text-right text-sm font-semibold">Issued Date:</h3>
@@ -102,6 +103,12 @@ export function InvoicePreview({ contractor, clients, control }: InvoicePreviewP
               <p className="font-semibold text-gray-700">Client Banking Information</p>
               <p className="whitespace-pre-line text-gray-600">{client.bankingDetails}</p>
             </>
+          )}
+          {contractor.paymentInformation && (
+            <div className={client?.bankingDetails ? 'mt-3' : undefined}>
+              <p className="font-semibold text-gray-700">Payment Information:</p>
+              <p className="whitespace-pre-line text-gray-600">{contractor.paymentInformation}</p>
+            </div>
           )}
         </div>
         <div className="flex gap-4 text-lg font-semibold">

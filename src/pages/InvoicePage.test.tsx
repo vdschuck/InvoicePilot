@@ -16,6 +16,7 @@ const contractor: Contractor = {
   city: 'London',
   state: 'London',
   country: 'United Kingdom',
+  zipCode: 'EC1A 1BB',
   contactNumber: '+44 20 7946 0958',
 }
 
@@ -84,6 +85,16 @@ describe('InvoicePage', () => {
     expect(screen.getByText('Total: 150.00')).toBeInTheDocument()
   })
 
+  it('forces the item description to upper case as it is typed', () => {
+    render(<InvoicePage />)
+
+    const description = screen.getByLabelText('Description')
+    fireEvent.change(description, { target: { value: 'Consulting services' } })
+
+    expect(description).toHaveValue('CONSULTING SERVICES')
+    expect(screen.getByText('CONSULTING SERVICES')).toBeInTheDocument()
+  })
+
   it('adds and removes items dynamically, recalculating the total', () => {
     render(<InvoicePage />)
 
@@ -139,6 +150,14 @@ describe('InvoicePage', () => {
       render(<InvoicePage />)
       expect(screen.getByText('Ada Lovelace')).toBeInTheDocument()
       expect(screen.getByText('Analytical Engines Ltd')).toBeInTheDocument()
+      expect(screen.getByText(contractor.zipCode)).toBeInTheDocument()
+    })
+
+    it('shows the contractor zip code above the contact number', () => {
+      render(<InvoicePage />)
+      const zipCode = screen.getByText(contractor.zipCode)
+      const contactNumber = screen.getByText(contractor.contactNumber)
+      expect(zipCode.compareDocumentPosition(contactNumber) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     })
 
     it('shows a placeholder in the TO section until a client is selected', () => {
@@ -212,6 +231,45 @@ describe('InvoicePage', () => {
       expect(screen.getByText("Client Banking Information")).toBeInTheDocument()
       expect(screen.getByText(/TIN \(CUI\/CIF\): 999/)).toBeInTheDocument()
       expect(screen.getByText(/Bank: Turing Trust/)).toBeInTheDocument()
+    })
+
+    it('does not show payment information for a contractor that has none', () => {
+      render(<InvoicePage />)
+      expect(screen.queryByText('Payment Information:')).not.toBeInTheDocument()
+    })
+
+    it('shows the payment information heading and content for a contractor that has it', () => {
+      saveContractor({ ...contractor, paymentInformation: 'TIN (CUI/CIF): 111\nBank: Analytical Bank' })
+      render(<InvoicePage />)
+
+      expect(screen.getByText('Payment Information:')).toBeInTheDocument()
+      expect(screen.getByText(/TIN \(CUI\/CIF\): 111/)).toBeInTheDocument()
+      expect(screen.getByText(/Bank: Analytical Bank/)).toBeInTheDocument()
+    })
+
+    it('shows payment information right below the client banking details', () => {
+      addClient({
+        name: 'Alan Turing',
+        companyName: 'Codebreakers Ltd',
+        streetAddress: '2 Enigma Road',
+        city: 'Bletchley',
+        state: 'Buckinghamshire',
+        country: 'United Kingdom',
+        contactNumber: '+44 20 7946 0959',
+        currency: 'USD',
+        bankingDetails: 'Bank: Turing Trust',
+      })
+      saveContractor({ ...contractor, paymentInformation: 'Bank: Analytical Bank' })
+      render(<InvoicePage />)
+      fireEvent.change(screen.getByLabelText('Client'), {
+        target: { value: screen.getByRole('option', { name: 'Alan Turing' }).getAttribute('value') },
+      })
+
+      const clientHeading = screen.getByText('Client Banking Information')
+      const paymentHeading = screen.getByText('Payment Information:')
+      expect(
+        clientHeading.compareDocumentPosition(paymentHeading) & Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy()
     })
   })
 

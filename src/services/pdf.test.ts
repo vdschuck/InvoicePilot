@@ -25,6 +25,7 @@ const contractor: Contractor = {
   city: 'London',
   state: 'London',
   country: 'United Kingdom',
+  zipCode: 'EC1A 1BB',
   contactNumber: '+44 20 7946 0958',
 }
 
@@ -70,6 +71,13 @@ describe('generateInvoicePdf', () => {
     expect(text).toContain(formatLongDate(draft.invoiceDate))
     expect(text).toContain(draft.items[0].refNo)
     expect(text).toContain(draft.items[0].description)
+    expect(text).toContain(contractor.zipCode)
+  })
+
+  it('places the contractor zip code above the contact number', async () => {
+    const text = await extractText(generateInvoicePdf(contractor, makeDraft()))
+
+    expect(text.indexOf(contractor.zipCode)).toBeLessThan(text.indexOf(contractor.contactNumber))
   })
 
   it('formats amounts using the client currency, not a raw number only', async () => {
@@ -113,6 +121,44 @@ describe('generateInvoicePdf', () => {
     expect(text).toContain('TIN (CUI/CIF): 12345')
     expect(text).toContain('Account No: 1234567890')
     expect(text).toContain('Bank: First National')
+  })
+
+  it('omits the payment information heading when the contractor has none', async () => {
+    const text = await extractText(generateInvoicePdf(contractor, makeDraft()))
+    expect(text).not.toContain('Payment Information:')
+  })
+
+  it('includes the payment information heading and content when present', async () => {
+    const paidContractor: Contractor = {
+      ...contractor,
+      paymentInformation: 'TIN (CUI/CIF): 999\nAccount No: 555000111\nBank: First National',
+    }
+    const text = await extractText(generateInvoicePdf(paidContractor, makeDraft()))
+
+    expect(text).toContain('Payment Information:')
+    expect(text).toContain('TIN (CUI/CIF): 999')
+    expect(text).toContain('Account No: 555000111')
+  })
+
+  it('places the payment information block below the client banking details block', async () => {
+    const paidContractor: Contractor = {
+      ...contractor,
+      paymentInformation: 'Bank: Contractor Bank',
+    }
+    const draft = makeDraft({
+      client: {
+        ...makeDraft().client,
+        bankingDetails: 'TIN (CUI/CIF): 12345\nAccount No: 1234567890\nBank: First National',
+      },
+    })
+    const text = await extractText(generateInvoicePdf(paidContractor, draft))
+
+    const clientHeadingIndex = text.indexOf('Client Banking Information')
+    const clientLastLineIndex = text.indexOf('Bank: First National')
+    const paymentHeadingIndex = text.indexOf('Payment Information:')
+
+    expect(clientHeadingIndex).toBeGreaterThanOrEqual(0)
+    expect(paymentHeadingIndex).toBeGreaterThan(clientLastLineIndex)
   })
 })
 

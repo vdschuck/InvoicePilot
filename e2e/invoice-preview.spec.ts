@@ -7,6 +7,7 @@ const contractor = {
   city: 'London',
   state: 'London',
   country: 'United Kingdom',
+  zipCode: 'EC1A 1BB',
   contactNumber: '+44 20 7946 0958',
 }
 
@@ -22,6 +23,11 @@ const client = {
   currency: 'USD',
 }
 
+const paidContractor = {
+  ...contractor,
+  paymentInformation: 'TIN (CUI/CIF): 111\nAccount No: 999888777\nBank: Analytical Bank',
+}
+
 const bankedClient = {
   id: 'client-2',
   name: 'Alan Turing',
@@ -35,7 +41,10 @@ const bankedClient = {
   bankingDetails: 'TIN (CUI/CIF): 999\nAccount No: 1234567890\nBank: Turing Trust',
 }
 
-async function goToInvoicePage(page: import('@playwright/test').Page) {
+async function goToInvoicePage(
+  page: import('@playwright/test').Page,
+  activeContractor: typeof contractor = contractor,
+) {
   await page.addInitScript(
     ({ contractor, client, bankedClient }) => {
       if (!localStorage.getItem('invoicepilot:app-data')) {
@@ -49,7 +58,7 @@ async function goToInvoicePage(page: import('@playwright/test').Page) {
         )
       }
     },
-    { contractor, client, bankedClient },
+    { contractor: activeContractor, client, bankedClient },
   )
   await page.goto('/')
   await page.getByRole('link', { name: 'Create Invoice' }).click()
@@ -111,4 +120,24 @@ test('shows banking details for a client that has them', async ({ page }) => {
   await expect(page.getByText("Client Banking Information")).toBeVisible()
   await expect(page.getByText(/TIN \(CUI\/CIF\): 999/)).toBeVisible()
   await expect(page.getByText(/Bank: Turing Trust/)).toBeVisible()
+})
+
+test('does not show payment information for a contractor that has none', async ({ page }) => {
+  await goToInvoicePage(page)
+  await expect(page.getByText('Payment Information:')).toHaveCount(0)
+})
+
+test('shows payment information right below the client banking details', async ({ page }) => {
+  await goToInvoicePage(page, paidContractor)
+  await page.getByLabel('Client').selectOption({ label: 'Alan Turing' })
+
+  const clientHeading = page.getByText('Client Banking Information')
+  const paymentHeading = page.getByText('Payment Information:')
+  await expect(clientHeading).toBeVisible()
+  await expect(paymentHeading).toBeVisible()
+  await expect(page.getByText(/TIN \(CUI\/CIF\): 111/)).toBeVisible()
+
+  const clientBox = await clientHeading.boundingBox()
+  const paymentBox = await paymentHeading.boundingBox()
+  expect(paymentBox!.y).toBeGreaterThan(clientBox!.y)
 })

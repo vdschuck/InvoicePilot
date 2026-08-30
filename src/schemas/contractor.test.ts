@@ -8,6 +8,7 @@ function validContractor() {
     city: 'London',
     state: 'London',
     country: 'United Kingdom',
+    zipCode: 'EC1A 1BB',
     contactNumber: '+44 20 7946 0958',
   }
 }
@@ -29,5 +30,24 @@ describe('contractorSchema', () => {
       name: '  Ada Lovelace  ',
     })
     expect(result.name).toBe('Ada Lovelace')
+  })
+
+  it('accepts a contractor with no payment information', () => {
+    const result = contractorSchema.safeParse(validContractor())
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.paymentInformation).toBeUndefined()
+    }
+  })
+
+  it('accepts and trims multi-line payment information', () => {
+    const result = contractorSchema.safeParse({
+      ...validContractor(),
+      paymentInformation: '  TIN (CUI/CIF): 12345\nAccount No: 1234567890  ',
+    })
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.paymentInformation).toBe('TIN (CUI/CIF): 12345\nAccount No: 1234567890')
+    }
   })
 })

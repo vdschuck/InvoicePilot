@@ -7,6 +7,7 @@ const contractor = {
   city: 'London',
   state: 'London',
   country: 'United Kingdom',
+  zipCode: 'EC1A 1BB',
   contactNumber: '+44 20 7946 0958',
 }
 
@@ -68,6 +69,14 @@ test('computes item amount and invoice total live as items are entered', async (
   // "150.00" appears in the live preview's item and Amount Due cells.
   await expect(page.getByText('150.00', { exact: true }).first()).toBeVisible()
   await expect(page.getByText('Total: 150.00')).toBeVisible()
+})
+
+test('forces the item description to upper case as it is typed', async ({ page }) => {
+  await goToInvoicePage(page)
+
+  await page.getByLabel('Description').fill('Consulting services')
+
+  await expect(page.getByLabel('Description')).toHaveValue('CONSULTING SERVICES')
 })
 
 test('adds and removes items dynamically, recalculating the total', async ({ page }) => {

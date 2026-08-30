@@ -23,6 +23,7 @@ function makeContractor(): Contractor {
     city: '',
     state: '',
     country: '',
+    zipCode: '',
     contactNumber: '',
   }
 }

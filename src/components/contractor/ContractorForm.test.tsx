@@ -18,6 +18,7 @@ function fillForm(values: Contractor) {
   fireEvent.change(screen.getByLabelText('City'), { target: { value: values.city } })
   fireEvent.change(screen.getByLabelText('State'), { target: { value: values.state } })
   fireEvent.change(screen.getByLabelText('Country'), { target: { value: values.country } })
+  fireEvent.change(screen.getByLabelText('Zip code'), { target: { value: values.zipCode } })
   fireEvent.change(screen.getByLabelText('Contact number'), {
     target: { value: values.contactNumber },
   })
@@ -30,6 +31,7 @@ const contractor: Contractor = {
   city: 'London',
   state: 'London',
   country: 'United Kingdom',
+  zipCode: 'EC1A 1BB',
   contactNumber: '+44 20 7946 0958',
 }
 
@@ -62,7 +64,7 @@ describe('ContractorForm', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Save' }))
 
-    expect(await screen.findAllByRole('alert')).toHaveLength(7)
+    expect(await screen.findAllByRole('alert')).toHaveLength(8)
     expect(getAppData()).toBeNull()
   })
 
@@ -73,7 +75,7 @@ describe('ContractorForm', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Save' }))
 
     expect(await screen.findByText('Clients Page')).toBeInTheDocument()
-    expect(getAppData()?.contractor).toEqual(contractor)
+    expect(getAppData()?.contractor).toEqual({ ...contractor, paymentInformation: '' })
   })
 
   it('navigates to Clients after saving an edit, even when clients already exist', async () => {

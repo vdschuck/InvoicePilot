@@ -26,7 +26,9 @@ The user can register:
 - City
 - State
 - Country
+- Zip code
 - Contact number
+- Payment information (optional; free-form, multi-line text)
 
 ### Clients
 

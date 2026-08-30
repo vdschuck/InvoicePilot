@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
+import { TextareaField } from '../forms/TextareaField'
 import { TextField } from '../forms/TextField'
 import { contractorSchema, type ContractorFormValues } from '../../schemas/contractor'
 import { saveContractor } from '../../services/storage'
@@ -14,8 +15,16 @@ const emptyContractor: ContractorFormValues = {
   city: '',
   state: '',
   country: '',
+  zipCode: '',
   contactNumber: '',
+  paymentInformation: '',
 }
+
+const PAYMENT_INFORMATION_PLACEHOLDER = `Beneficiary name:
+SWIFT/BIC:
+Bank Account Number:
+Bank Name:
+Bank Address:`
 
 export function ContractorForm({ contractor }: { contractor: Contractor | null }) {
   const navigate = useNavigate()
@@ -59,11 +68,18 @@ export function ContractorForm({ contractor }: { contractor: Contractor | null }
       <TextField label="City" registration={register('city')} error={errors.city?.message} />
       <TextField label="State" registration={register('state')} error={errors.state?.message} />
       <TextField label="Country" registration={register('country')} error={errors.country?.message} />
+      <TextField label="Zip code" registration={register('zipCode')} error={errors.zipCode?.message} />
       <TextField
         label="Contact number"
         type="tel"
         registration={register('contactNumber')}
         error={errors.contactNumber?.message}
+      />
+      <TextareaField
+        label="Payment information"
+        registration={register('paymentInformation')}
+        error={errors.paymentInformation?.message}
+        placeholder={PAYMENT_INFORMATION_PLACEHOLDER}
       />
 
       <button

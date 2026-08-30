@@ -5,7 +5,9 @@ export interface Contractor {
   city: string
   state: string
   country: string
+  zipCode: string
   contactNumber: string
+  paymentInformation?: string
 }
 
 export interface Client {

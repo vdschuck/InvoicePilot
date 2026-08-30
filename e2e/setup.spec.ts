@@ -7,6 +7,7 @@ const contractor = {
   city: 'London',
   state: 'London',
   country: 'United Kingdom',
+  zipCode: 'EC1A 1BB',
   contactNumber: '+44 20 7946 0958',
 }
 
@@ -17,6 +18,7 @@ async function fillContractorForm(page: import('@playwright/test').Page, values:
   await page.getByLabel('City').fill(values.city)
   await page.getByLabel('State').fill(values.state)
   await page.getByLabel('Country').fill(values.country)
+  await page.getByLabel('Zip code').fill(values.zipCode)
   await page.getByLabel('Contact number').fill(values.contactNumber)
 }
 
@@ -39,7 +41,27 @@ test('saving contractor information goes straight to Clients', async ({ page }) 
   const stored = await page.evaluate(() =>
     JSON.parse(localStorage.getItem('invoicepilot:app-data') ?? 'null'),
   )
-  expect(stored.contractor).toEqual(contractor)
+  expect(stored.contractor).toEqual({ ...contractor, paymentInformation: '' })
+})
+
+test('saves multi-line payment information entered for the contractor', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('link', { name: 'Setup Data' }).click()
+
+  await fillContractorForm(page, contractor)
+  await page
+    .getByLabel('Payment information')
+    .fill('TIN (CUI/CIF): 12345\nAccount No: 1234567890\nBank: First National')
+  await page.getByRole('button', { name: 'Save' }).click()
+
+  await expect(page).toHaveURL('/clients')
+
+  const stored = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem('invoicepilot:app-data') ?? 'null'),
+  )
+  expect(stored.contractor.paymentInformation).toBe(
+    'TIN (CUI/CIF): 12345\nAccount No: 1234567890\nBank: First National',
+  )
 })
 
 test('keeps Create Invoice disabled when a contractor exists but no client is registered', async ({

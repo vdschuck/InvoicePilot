@@ -1,6 +1,20 @@
-import type { FieldErrors, UseFormRegister } from 'react-hook-form'
+import type { FieldErrors, UseFormRegister, UseFormRegisterReturn } from 'react-hook-form'
 import type { InvoiceFormValues, InvoiceItemFormValues } from '../../schemas/invoice'
 import { TextField } from '../forms/TextField'
+
+// Mutates the input's DOM value to upper case before delegating to the
+// registration's own onChange, so react-hook-form's watched state (and thus
+// the live preview and PDF, which read from that state) captures the
+// upper-cased value rather than the raw, as-typed one.
+function uppercaseOnChange(registration: UseFormRegisterReturn): UseFormRegisterReturn {
+  return {
+    ...registration,
+    onChange: (event) => {
+      event.target.value = event.target.value.toUpperCase()
+      return registration.onChange(event)
+    },
+  }
+}
 
 interface InvoiceItemRowProps {
   index: number
@@ -32,7 +46,7 @@ export function InvoiceItemRow({
         <div className="sm:w-2/3">
           <TextField
             label="Description"
-            registration={register(`items.${index}.description` as const)}
+            registration={uppercaseOnChange(register(`items.${index}.description` as const))}
             error={errors?.description?.message}
           />
         </div>
