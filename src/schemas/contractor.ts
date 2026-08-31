@@ -7,6 +7,7 @@ const requiredField = (label: string) =>
 export const contractorSchema = z.object({
   name: z.string().trim().optional(),
   companyName: requiredField('Company name'),
+  companyIdentificationNumber: z.string().trim().optional(),
   addressLine1: requiredField('Address line 1'),
   addressLine2: z.string().trim().optional(),
   city: requiredField('City'),

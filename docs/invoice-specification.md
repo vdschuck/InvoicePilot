@@ -16,6 +16,7 @@ Display contractor:
 
 - Contractor Name (if provided)
 - Company Name
+- Company Identification Number (if provided)
 - Address Line 1
 - Address Line 2 (if provided)
 - City, State, Country

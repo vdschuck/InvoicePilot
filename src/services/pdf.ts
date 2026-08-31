@@ -74,6 +74,7 @@ export function generateInvoicePdf(contractor: Contractor, draft: InvoiceDraft):
   const fromLines: PartyLine[] = [
     contractor.name && { text: contractor.name },
     { text: contractor.companyName, bold: true },
+    contractor.companyIdentificationNumber && { text: contractor.companyIdentificationNumber },
     ...formatAddressLines(contractor).map((text) => ({ text })),
     contractor.contactNumber && { text: contractor.contactNumber },
   ].filter((line): line is PartyLine => Boolean(line))

@@ -6,6 +6,7 @@
 interface Contractor {
   name?: string; // optional
   companyName: string;
+  companyIdentificationNumber?: string; // optional
   addressLine1: string;
   addressLine2?: string; // optional
   city: string;

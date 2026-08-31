@@ -77,6 +77,7 @@ describe('ContractorForm', () => {
     expect(await screen.findByText('Clients Page')).toBeInTheDocument()
     expect(getAppData()?.contractor).toEqual({
       ...contractor,
+      companyIdentificationNumber: '',
       addressLine2: '',
       paymentInformation: '',
     })

@@ -22,6 +22,7 @@ The user can register:
 
 - Contractor name (optional)
 - Company name
+- Company identification number (optional)
 - Address line 1
 - Address line 2 (optional)
 - City

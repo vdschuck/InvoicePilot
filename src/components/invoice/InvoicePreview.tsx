@@ -36,6 +36,9 @@ export function InvoicePreview({ contractor, clients, control }: InvoicePreviewP
           <h3 className="text-base font-semibold uppercase tracking-wide text-gray-500">From</h3>
           {contractor.name && <p className="text-sm font-medium">{contractor.name}</p>}
           <p className="text-sm font-bold">{contractor.companyName}</p>
+          {contractor.companyIdentificationNumber && (
+            <p className="text-sm">{contractor.companyIdentificationNumber}</p>
+          )}
           {formatAddressLines(contractor).map((line, index) => (
             <p key={index} className="text-sm">
               {line}
