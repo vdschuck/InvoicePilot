@@ -1,7 +1,8 @@
 export interface Contractor {
   name?: string
   companyName: string
-  streetAddress: string
+  addressLine1: string
+  addressLine2?: string
   city: string
   state: string
   country: string
@@ -13,10 +14,12 @@ export interface Contractor {
 export interface Client {
   id: string
   companyName: string
-  streetAddress: string
+  addressLine1: string
+  addressLine2?: string
   city: string
   state: string
   country: string
+  zipCode: string
   contactNumber: string
   currency: string
   bankingDetails?: string

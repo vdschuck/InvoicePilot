@@ -14,9 +14,10 @@ Invoice number
 
 Display contractor:
 
-- Contractor Name
+- Contractor Name (if provided)
 - Company Name
-- Street Address
+- Address Line 1
+- Address Line 2 (if provided)
 - City, State, Country
 - Zip Code
 - Contact Number
@@ -27,10 +28,11 @@ Display contractor:
 
 Display selected client:
 
-- Client Name
 - Company Name
-- Street Address
+- Address Line 1
+- Address Line 2 (if provided)
 - City, State, Country
+- Zip Code
 - Contact Number
 
 ---

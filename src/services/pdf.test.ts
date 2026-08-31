@@ -21,7 +21,7 @@ async function extractText(doc: jsPDF): Promise<string> {
 const contractor: Contractor = {
   name: 'Ada Lovelace',
   companyName: 'Analytical Engines Ltd',
-  streetAddress: '1 Babbage Street',
+  addressLine1: '1 Babbage Street',
   city: 'London',
   state: 'London',
   country: 'United Kingdom',
@@ -35,10 +35,11 @@ function makeDraft(overrides: Partial<InvoiceDraft> = {}): InvoiceDraft {
     client: {
       id: '1',
       companyName: 'Compilers Inc',
-      streetAddress: '1 Turing Way',
+      addressLine1: '1 Turing Way',
       city: 'Arlington',
       state: 'VA',
       country: 'United States',
+      zipCode: '22201',
       contactNumber: '+1 555-0100',
       currency: 'USD',
     },

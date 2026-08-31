@@ -7,7 +7,7 @@ import { ClientsPage } from './ClientsPage'
 const contractor: Contractor = {
   name: 'Ada Lovelace',
   companyName: 'Analytical Engines Ltd',
-  streetAddress: '1 Babbage Street',
+  addressLine1: '1 Babbage Street',
   city: 'London',
   state: 'London',
   country: 'United Kingdom',
@@ -17,22 +17,24 @@ const contractor: Contractor = {
 
 function fillClientForm(values: {
   companyName: string
-  streetAddress: string
+  addressLine1: string
   city: string
   state: string
   country: string
+  zipCode: string
   contactNumber: string
   currency: string
 }) {
   fireEvent.change(screen.getByLabelText(/^Company name/), {
     target: { value: values.companyName },
   })
-  fireEvent.change(screen.getByLabelText(/^Street address/), {
-    target: { value: values.streetAddress },
+  fireEvent.change(screen.getByLabelText(/^Address line 1/), {
+    target: { value: values.addressLine1 },
   })
   fireEvent.change(screen.getByLabelText(/^City/), { target: { value: values.city } })
   fireEvent.change(screen.getByLabelText(/^State/), { target: { value: values.state } })
   fireEvent.change(screen.getByLabelText(/^Country/), { target: { value: values.country } })
+  fireEvent.change(screen.getByLabelText(/^Zip code/), { target: { value: values.zipCode } })
   fireEvent.change(screen.getByLabelText(/^Contact number/), {
     target: { value: values.contactNumber },
   })
@@ -41,20 +43,22 @@ function fillClientForm(values: {
 
 const clientA = {
   companyName: 'Compilers Inc',
-  streetAddress: '1 Turing Way',
+  addressLine1: '1 Turing Way',
   city: 'Arlington',
   state: 'VA',
   country: 'United States',
+  zipCode: '22201',
   contactNumber: '+1 555-0100',
   currency: 'USD',
 }
 
 const clientB = {
   companyName: 'Codebreakers Ltd',
-  streetAddress: '2 Bletchley Park',
+  addressLine1: '2 Bletchley Park',
   city: 'Milton Keynes',
   state: 'Buckinghamshire',
   country: 'United Kingdom',
+  zipCode: 'MK3 6EB',
   contactNumber: '+44 1908 640404',
   currency: 'GBP',
 }
@@ -96,7 +100,7 @@ describe('ClientsPage', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Add Client' }))
 
-    expect(await screen.findAllByRole('alert')).toHaveLength(7)
+    expect(await screen.findAllByRole('alert')).toHaveLength(8)
   })
 
   it('disables Add Client once the maximum of 3 is reached', async () => {

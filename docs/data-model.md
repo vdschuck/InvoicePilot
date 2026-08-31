@@ -4,9 +4,10 @@
 
 ```ts
 interface Contractor {
-  name: string;
+  name?: string; // optional
   companyName: string;
-  streetAddress: string;
+  addressLine1: string;
+  addressLine2?: string; // optional
   city: string;
   state: string;
   country: string;
@@ -21,12 +22,13 @@ interface Contractor {
 ```ts
 interface Client {
   id: string; // GUID
-  name: string;
   companyName: string;
-  streetAddress: string;
+  addressLine1: string;
+  addressLine2?: string; // optional
   city: string;
   state: string;
   country: string;
+  zipCode: string;
   contactNumber: string;
   currency: string; // ISO 4217 currency code, e.g. "USD"
   bankingDetails?: string; // free-form, multi-line; optional

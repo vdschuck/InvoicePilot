@@ -9,7 +9,7 @@ function makeContractor(): Contractor {
   return {
     name: 'Ada Lovelace',
     companyName: '',
-    streetAddress: '',
+    addressLine1: '',
     city: '',
     state: '',
     country: '',
@@ -22,10 +22,11 @@ function makeClient(): Client {
   return {
     id: '1',
     companyName: 'Client',
-    streetAddress: '',
+    addressLine1: '',
     city: '',
     state: '',
     country: '',
+    zipCode: '',
     contactNumber: '',
     currency: 'USD',
   }

@@ -35,7 +35,8 @@ export function InvoicePreview({ contractor, clients, control }: InvoicePreviewP
           <h3 className="text-base font-semibold uppercase tracking-wide text-gray-500">From</h3>
           {contractor.name && <p className="text-sm font-medium">{contractor.name}</p>}
           <p className="text-sm">{contractor.companyName}</p>
-          <p className="text-sm">{contractor.streetAddress}</p>
+          <p className="text-sm">{contractor.addressLine1}</p>
+          {contractor.addressLine2 && <p className="text-sm">{contractor.addressLine2}</p>}
           <p className="text-sm">
             {contractor.city}, {contractor.state}, {contractor.country}
           </p>
@@ -47,10 +48,12 @@ export function InvoicePreview({ contractor, clients, control }: InvoicePreviewP
           {client ? (
             <>
               <p className="text-sm font-medium">{client.companyName}</p>
-              <p className="text-sm">{client.streetAddress}</p>
+              <p className="text-sm">{client.addressLine1}</p>
+              {client.addressLine2 && <p className="text-sm">{client.addressLine2}</p>}
               <p className="text-sm">
                 {client.city}, {client.state}, {client.country}
               </p>
+              <p className="text-sm">{client.zipCode}</p>
               <p className="text-sm">{client.contactNumber}</p>
             </>
           ) : (

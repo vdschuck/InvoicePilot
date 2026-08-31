@@ -12,7 +12,7 @@ jest.mock('../services/pdf', () => ({
 const contractor: Contractor = {
   name: 'Ada Lovelace',
   companyName: 'Analytical Engines Ltd',
-  streetAddress: '1 Babbage Street',
+  addressLine1: '1 Babbage Street',
   city: 'London',
   state: 'London',
   country: 'United Kingdom',
@@ -24,10 +24,11 @@ function seedContractorWithClient() {
   saveContractor(contractor)
   addClient({
     companyName: 'Compilers Inc',
-    streetAddress: '1 Turing Way',
+    addressLine1: '1 Turing Way',
     city: 'Arlington',
     state: 'VA',
     country: 'United States',
+    zipCode: '22201',
     contactNumber: '+1 555-0100',
     currency: 'USD',
   })
@@ -213,10 +214,11 @@ describe('InvoicePage', () => {
     it('shows the banking details heading and content for a client that has them', () => {
       addClient({
         companyName: 'Codebreakers Ltd',
-        streetAddress: '2 Enigma Road',
+        addressLine1: '2 Enigma Road',
         city: 'Bletchley',
         state: 'Buckinghamshire',
         country: 'United Kingdom',
+        zipCode: 'MK3 6EB',
         contactNumber: '+44 20 7946 0959',
         currency: 'USD',
         bankingDetails: 'TIN (CUI/CIF): 999\nBank: Turing Trust',
@@ -248,10 +250,11 @@ describe('InvoicePage', () => {
     it('shows payment information right below the client banking details', () => {
       addClient({
         companyName: 'Codebreakers Ltd',
-        streetAddress: '2 Enigma Road',
+        addressLine1: '2 Enigma Road',
         city: 'Bletchley',
         state: 'Buckinghamshire',
         country: 'United Kingdom',
+        zipCode: 'MK3 6EB',
         contactNumber: '+44 20 7946 0959',
         currency: 'USD',
         bankingDetails: 'Bank: Turing Trust',

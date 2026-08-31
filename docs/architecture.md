@@ -11,7 +11,7 @@ React Router.
 Routes:
 
 /
- /setup
+ /contractor
  /clients
  /invoice
 
@@ -23,12 +23,12 @@ points: a "Setup" button and a "Create Invoice" button.
 Directly accessing any route other than `/` (typing the URL,
 refreshing on it, or opening a bookmark to it) redirects to `/`. Only
 navigation originating from within the application may reach
-`/setup`, `/clients`, or `/invoice`.
+`/contractor`, `/clients`, or `/invoice`.
 
 Within the application, normal navigation still enforces:
 
-- `/clients` redirects to `/setup` if the contractor is not configured.
-- `/invoice` redirects to `/setup` if the contractor is not configured,
+- `/clients` redirects to `/contractor` if the contractor is not configured.
+- `/invoice` redirects to `/contractor` if the contractor is not configured,
   or to `/clients` if the contractor is configured but no client is
   registered.
 

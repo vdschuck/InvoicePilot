@@ -10,7 +10,7 @@ function makeContractor(): Contractor {
   return {
     name: 'Ada Lovelace',
     companyName: '',
-    streetAddress: '',
+    addressLine1: '',
     city: '',
     state: '',
     country: '',

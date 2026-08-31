@@ -20,9 +20,10 @@ invoices quickly.
 
 The user can register:
 
-- Contractor name
+- Contractor name (optional)
 - Company name
-- Street address
+- Address line 1
+- Address line 2 (optional)
 - City
 - State
 - Country
@@ -39,12 +40,13 @@ The user can edit and delete a registered client.
 
 Each client contains:
 
-- Client name
 - Company name
-- Street address
+- Address line 1
+- Address line 2 (optional)
 - City
 - State
 - Country
+- Zip code
 - Contact number
 - Currency (selected when the client is registered or edited; used to
   display and calculate amounts on invoices for that client)
@@ -141,8 +143,8 @@ refreshing on it, or opening a bookmark to it) redirects to `/`.
 Within the application, normal navigation still enforces:
 
 - `/clients` requires the contractor to be configured; otherwise
-  redirect to `/setup`.
-- `/invoice` requires the contractor to be configured and at least one client to be registered; otherwise redirect to `/setup`.
+  redirect to `/contractor`.
+- `/invoice` requires the contractor to be configured and at least one client to be registered; otherwise redirect to `/contractor`.
 
 ## Storage Keys
 

@@ -3,10 +3,11 @@ import { clientSchema } from './client'
 function validClient() {
   return {
     companyName: 'Compilers Inc',
-    streetAddress: '1 Turing Way',
+    addressLine1: '1 Turing Way',
     city: 'Arlington',
     state: 'VA',
     country: 'United States',
+    zipCode: '22201',
     contactNumber: '+1 555-0100',
     currency: 'USD',
   }
@@ -17,7 +18,7 @@ describe('clientSchema', () => {
     expect(clientSchema.safeParse(validClient()).success).toBe(true)
   })
 
-  it.each(['companyName', 'streetAddress', 'city', 'state', 'country', 'contactNumber'])(
+  it.each(['companyName', 'addressLine1', 'city', 'state', 'country', 'zipCode', 'contactNumber'])(
     'rejects a blank %s',
     (field) => {
       const result = clientSchema.safeParse({ ...validClient(), [field]: '  ' })

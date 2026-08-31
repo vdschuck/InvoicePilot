@@ -4,7 +4,7 @@ function validContractor() {
   return {
     name: 'Ada Lovelace',
     companyName: 'Analytical Engines Ltd',
-    streetAddress: '1 Babbage Street',
+    addressLine1: '1 Babbage Street',
     city: 'London',
     state: 'London',
     country: 'United Kingdom',

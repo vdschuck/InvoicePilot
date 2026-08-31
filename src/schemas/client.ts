@@ -7,10 +7,12 @@ const requiredField = (label: string) =>
 
 export const clientSchema = z.object({
   companyName: requiredField('Company name'),
-  streetAddress: requiredField('Street address'),
+  addressLine1: requiredField('Address line 1'),
+  addressLine2: z.string().trim().optional(),
   city: requiredField('City'),
   state: requiredField('State'),
   country: requiredField('Country'),
+  zipCode: requiredField('Zip code'),
   contactNumber: requiredField('Contact number'),
   currency: z.string().refine((value) => CURRENCY_CODES.includes(value), {
     message: 'Select a valid currency',

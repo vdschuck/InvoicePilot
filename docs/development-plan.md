@@ -23,8 +23,8 @@ Application shell.
 - Responsive design
 - Home page with Setup and Create Invoice buttons
 - Route guards (redirect direct/URL access to any other route back to
-  home; redirect in-app to /setup or /clients when prerequisites are
-  missing)
+  home; redirect in-app to /contractor or /clients when prerequisites
+  are missing)
 
 ## Phase 3
 

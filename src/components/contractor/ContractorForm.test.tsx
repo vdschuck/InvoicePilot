@@ -12,8 +12,8 @@ function fillForm(values: Contractor) {
   fireEvent.change(screen.getByLabelText(/^Company name/), {
     target: { value: values.companyName },
   })
-  fireEvent.change(screen.getByLabelText(/^Street address/), {
-    target: { value: values.streetAddress },
+  fireEvent.change(screen.getByLabelText(/^Address line 1/), {
+    target: { value: values.addressLine1 },
   })
   fireEvent.change(screen.getByLabelText(/^City/), { target: { value: values.city } })
   fireEvent.change(screen.getByLabelText(/^State/), { target: { value: values.state } })
@@ -27,7 +27,7 @@ function fillForm(values: Contractor) {
 const contractor: Contractor = {
   name: 'Ada Lovelace',
   companyName: 'Analytical Engines Ltd',
-  streetAddress: '1 Babbage Street',
+  addressLine1: '1 Babbage Street',
   city: 'London',
   state: 'London',
   country: 'United Kingdom',
@@ -75,7 +75,11 @@ describe('ContractorForm', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Save' }))
 
     expect(await screen.findByText('Clients Page')).toBeInTheDocument()
-    expect(getAppData()?.contractor).toEqual({ ...contractor, paymentInformation: '' })
+    expect(getAppData()?.contractor).toEqual({
+      ...contractor,
+      addressLine2: '',
+      paymentInformation: '',
+    })
   })
 
   it('navigates to Clients after saving an edit, even when clients already exist', async () => {
@@ -87,10 +91,11 @@ describe('ContractorForm', () => {
           {
             id: '1',
             companyName: 'Compilers Inc',
-            streetAddress: '1 Turing Way',
+            addressLine1: '1 Turing Way',
             city: 'Arlington',
             state: 'VA',
             country: 'United States',
+            zipCode: '22201',
             contactNumber: '+1 555-0100',
             currency: 'USD',
           },

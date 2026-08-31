@@ -8,10 +8,12 @@ import { TextField } from '../forms/TextField'
 
 const emptyClient: ClientFormValues = {
   companyName: '',
-  streetAddress: '',
+  addressLine1: '',
+  addressLine2: '',
   city: '',
   state: '',
   country: '',
+  zipCode: '',
   contactNumber: '',
   currency: '',
   bankingDetails: '',
@@ -64,10 +66,15 @@ export function ClientForm({
         required
       />
       <TextField
-        label="Street address"
-        registration={register('streetAddress')}
-        error={errors.streetAddress?.message}
+        label="Address line 1"
+        registration={register('addressLine1')}
+        error={errors.addressLine1?.message}
         required
+      />
+      <TextField
+        label="Address line 2"
+        registration={register('addressLine2')}
+        error={errors.addressLine2?.message}
       />
       <TextField label="City" registration={register('city')} error={errors.city?.message} required />
       <TextField label="State" registration={register('state')} error={errors.state?.message} required />
@@ -75,6 +82,12 @@ export function ClientForm({
         label="Country"
         registration={register('country')}
         error={errors.country?.message}
+        required
+      />
+      <TextField
+        label="Zip code"
+        registration={register('zipCode')}
+        error={errors.zipCode?.message}
         required
       />
       <TextField

@@ -11,7 +11,8 @@ import type { Contractor } from '../../types'
 const emptyContractor: ContractorFormValues = {
   name: '',
   companyName: '',
-  streetAddress: '',
+  addressLine1: '',
+  addressLine2: '',
   city: '',
   state: '',
   country: '',
@@ -62,10 +63,15 @@ export function ContractorForm({ contractor }: { contractor: Contractor | null }
         required
       />
       <TextField
-        label="Street address"
-        registration={register('streetAddress')}
-        error={errors.streetAddress?.message}
+        label="Address line 1"
+        registration={register('addressLine1')}
+        error={errors.addressLine1?.message}
         required
+      />
+      <TextField
+        label="Address line 2"
+        registration={register('addressLine2')}
+        error={errors.addressLine2?.message}
       />
       <TextField label="City" registration={register('city')} error={errors.city?.message} required />
       <TextField label="State" registration={register('state')} error={errors.state?.message} required />

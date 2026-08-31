@@ -61,20 +61,24 @@ export function generateInvoicePdf(contractor: Contractor, draft: InvoiceDraft):
   const fromLines = [
     contractor.name,
     contractor.companyName,
-    contractor.streetAddress,
+    contractor.addressLine1,
+    contractor.addressLine2,
     `${contractor.city}, ${contractor.state}, ${contractor.country}`,
     contractor.zipCode,
     contractor.contactNumber,
   ].filter((line): line is string => Boolean(line))
 
-  writeLines(doc, MARGIN_X, 46, fromLines)
-
-  writeLines(doc, 110, 46, [
+  const toLines = [
     draft.client.companyName,
-    draft.client.streetAddress,
+    draft.client.addressLine1,
+    draft.client.addressLine2,
     `${draft.client.city}, ${draft.client.state}, ${draft.client.country}`,
+    draft.client.zipCode,
     draft.client.contactNumber,
-  ])
+  ].filter((line): line is string => Boolean(line))
+
+  writeLines(doc, MARGIN_X, 46, fromLines)
+  writeLines(doc, 110, 46, toLines)
 
   autoTable(doc, {
     startY: 80,
