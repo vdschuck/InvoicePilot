@@ -13,7 +13,7 @@ export const clientSchema = z.object({
   state: requiredField('State'),
   country: requiredField('Country'),
   zipCode: requiredField('Zip code'),
-  contactNumber: requiredField('Contact number'),
+  contactNumber: z.string().trim().optional(),
   currency: z.string().refine((value) => CURRENCY_CODES.includes(value), {
     message: 'Select a valid currency',
   }),

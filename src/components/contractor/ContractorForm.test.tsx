@@ -64,7 +64,7 @@ describe('ContractorForm', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Save' }))
 
-    expect(await screen.findAllByRole('alert')).toHaveLength(7)
+    expect(await screen.findAllByRole('alert')).toHaveLength(6)
     expect(getAppData()).toBeNull()
   })
 

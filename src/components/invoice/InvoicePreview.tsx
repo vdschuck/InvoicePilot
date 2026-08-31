@@ -41,7 +41,7 @@ export function InvoicePreview({ contractor, clients, control }: InvoicePreviewP
             {contractor.city}, {contractor.state}, {contractor.country}
           </p>
           <p className="text-sm">{contractor.zipCode}</p>
-          <p className="text-sm">{contractor.contactNumber}</p>
+          {contractor.contactNumber && <p className="text-sm">{contractor.contactNumber}</p>}
         </div>
         <div>
           <h3 className="text-base font-semibold uppercase tracking-wide text-gray-500">To</h3>
@@ -54,7 +54,7 @@ export function InvoicePreview({ contractor, clients, control }: InvoicePreviewP
                 {client.city}, {client.state}, {client.country}
               </p>
               <p className="text-sm">{client.zipCode}</p>
-              <p className="text-sm">{client.contactNumber}</p>
+              {client.contactNumber && <p className="text-sm">{client.contactNumber}</p>}
             </>
           ) : (
             <p className="text-sm text-gray-500">No client selected</p>

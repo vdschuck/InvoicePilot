@@ -7,7 +7,7 @@ export interface Contractor {
   state: string
   country: string
   zipCode: string
-  contactNumber: string
+  contactNumber?: string
   paymentInformation?: string
 }
 
@@ -20,7 +20,7 @@ export interface Client {
   state: string
   country: string
   zipCode: string
-  contactNumber: string
+  contactNumber?: string
   currency: string
   bankingDetails?: string
 }

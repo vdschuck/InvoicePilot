@@ -20,7 +20,7 @@ Display contractor:
 - Address Line 2 (if provided)
 - City, State, Country
 - Zip Code
-- Contact Number
+- Contact Number (if provided)
 
 ---
 
@@ -33,7 +33,7 @@ Display selected client:
 - Address Line 2 (if provided)
 - City, State, Country
 - Zip Code
-- Contact Number
+- Contact Number (if provided)
 
 ---
 

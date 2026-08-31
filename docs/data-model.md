@@ -12,7 +12,7 @@ interface Contractor {
   state: string;
   country: string;
   zipCode: string;
-  contactNumber: string;
+  contactNumber?: string; // optional
   paymentInformation?: string; // free-form, multi-line; optional
 }
 ```
@@ -29,7 +29,7 @@ interface Client {
   state: string;
   country: string;
   zipCode: string;
-  contactNumber: string;
+  contactNumber?: string; // optional
   currency: string; // ISO 4217 currency code, e.g. "USD"
   bankingDetails?: string; // free-form, multi-line; optional
 }

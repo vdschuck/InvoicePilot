@@ -28,7 +28,7 @@ The user can register:
 - State
 - Country
 - Zip code
-- Contact number
+- Contact number (optional)
 - Payment information (optional; free-form, multi-line text)
 
 ### Clients
@@ -47,7 +47,7 @@ Each client contains:
 - State
 - Country
 - Zip code
-- Contact number
+- Contact number (optional)
 - Currency (selected when the client is registered or edited; used to
   display and calculate amounts on invoices for that client)
 - Banking details (optional)

@@ -100,7 +100,7 @@ describe('ClientsPage', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Add Client' }))
 
-    expect(await screen.findAllByRole('alert')).toHaveLength(8)
+    expect(await screen.findAllByRole('alert')).toHaveLength(7)
   })
 
   it('disables Add Client once the maximum of 3 is reached', async () => {

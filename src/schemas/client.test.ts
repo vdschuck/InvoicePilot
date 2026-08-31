@@ -18,13 +18,20 @@ describe('clientSchema', () => {
     expect(clientSchema.safeParse(validClient()).success).toBe(true)
   })
 
-  it.each(['companyName', 'addressLine1', 'city', 'state', 'country', 'zipCode', 'contactNumber'])(
+  it.each(['companyName', 'addressLine1', 'city', 'state', 'country', 'zipCode'])(
     'rejects a blank %s',
     (field) => {
       const result = clientSchema.safeParse({ ...validClient(), [field]: '  ' })
       expect(result.success).toBe(false)
     },
   )
+
+  it('accepts a client with no contact number', () => {
+    const client = validClient()
+    delete (client as Partial<typeof client>).contactNumber
+    const result = clientSchema.safeParse(client)
+    expect(result.success).toBe(true)
+  })
 
   it('rejects a currency code that is not in the supported list', () => {
     const result = clientSchema.safeParse({ ...validClient(), currency: 'XXX' })

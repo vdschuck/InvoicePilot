@@ -76,7 +76,7 @@ describe('generateInvoicePdf', () => {
   it('places the contractor zip code above the contact number', async () => {
     const text = await extractText(generateInvoicePdf(contractor, makeDraft()))
 
-    expect(text.indexOf(contractor.zipCode)).toBeLessThan(text.indexOf(contractor.contactNumber))
+    expect(text.indexOf(contractor.zipCode)).toBeLessThan(text.indexOf(contractor.contactNumber!))
   })
 
   it('formats amounts using the client currency, not a raw number only', async () => {

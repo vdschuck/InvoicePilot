@@ -95,7 +95,6 @@ export function ClientForm({
         type="tel"
         registration={register('contactNumber')}
         error={errors.contactNumber?.message}
-        required
       />
       <SelectField
         label="Currency"

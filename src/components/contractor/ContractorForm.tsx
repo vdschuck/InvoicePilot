@@ -92,7 +92,6 @@ export function ContractorForm({ contractor }: { contractor: Contractor | null }
         type="tel"
         registration={register('contactNumber')}
         error={errors.contactNumber?.message}
-        required
       />
       <TextareaField
         label="Payment information"

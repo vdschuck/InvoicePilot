@@ -13,7 +13,7 @@ export const contractorSchema = z.object({
   state: requiredField('State'),
   country: requiredField('Country'),
   zipCode: requiredField('Zip code'),
-  contactNumber: requiredField('Contact number'),
+  contactNumber: z.string().trim().optional(),
   paymentInformation: z.string().trim().optional(),
 }) satisfies z.ZodType<Contractor>
 

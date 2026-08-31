@@ -156,7 +156,7 @@ describe('InvoicePage', () => {
     it('shows the contractor zip code above the contact number', () => {
       render(<InvoicePage />)
       const zipCode = screen.getByText(contractor.zipCode)
-      const contactNumber = screen.getByText(contractor.contactNumber)
+      const contactNumber = screen.getByText(contractor.contactNumber!)
       expect(zipCode.compareDocumentPosition(contactNumber) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     })
 
