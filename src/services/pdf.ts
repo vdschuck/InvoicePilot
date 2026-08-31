@@ -2,6 +2,7 @@ import { jsPDF } from 'jspdf'
 import { autoTable } from 'jspdf-autotable'
 import { INTER_BOLD_BASE64, INTER_REGULAR_BASE64 } from '../assets/fonts/inter'
 import type { Contractor, InvoiceDraft } from '../types'
+import { formatAddressLines } from '../utils/address'
 import { calculateInvoiceTotal, calculateItemAmount } from '../utils/calculations'
 import { formatCurrency } from '../utils/currency'
 import { formatLongDate } from '../utils/dateFormat'
@@ -61,19 +62,13 @@ export function generateInvoicePdf(contractor: Contractor, draft: InvoiceDraft):
   const fromLines = [
     contractor.name,
     contractor.companyName,
-    contractor.addressLine1,
-    contractor.addressLine2,
-    `${contractor.city}, ${contractor.state}, ${contractor.country}`,
-    contractor.zipCode,
+    ...formatAddressLines(contractor),
     contractor.contactNumber,
   ].filter((line): line is string => Boolean(line))
 
   const toLines = [
     draft.client.companyName,
-    draft.client.addressLine1,
-    draft.client.addressLine2,
-    `${draft.client.city}, ${draft.client.state}, ${draft.client.country}`,
-    draft.client.zipCode,
+    ...formatAddressLines(draft.client),
     draft.client.contactNumber,
   ].filter((line): line is string => Boolean(line))
 

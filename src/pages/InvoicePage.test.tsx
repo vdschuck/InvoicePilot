@@ -150,14 +150,16 @@ describe('InvoicePage', () => {
       render(<InvoicePage />)
       expect(screen.getByText('Ada Lovelace')).toBeInTheDocument()
       expect(screen.getByText('Analytical Engines Ltd')).toBeInTheDocument()
-      expect(screen.getByText(contractor.zipCode)).toBeInTheDocument()
+      expect(
+        screen.getByText(`${contractor.city}, ${contractor.state} - ${contractor.zipCode}`),
+      ).toBeInTheDocument()
     })
 
-    it('shows the contractor zip code above the contact number', () => {
+    it('shows the contractor city/state/zip line above the contact number', () => {
       render(<InvoicePage />)
-      const zipCode = screen.getByText(contractor.zipCode)
+      const cityLine = screen.getByText(`${contractor.city}, ${contractor.state} - ${contractor.zipCode}`)
       const contactNumber = screen.getByText(contractor.contactNumber!)
-      expect(zipCode.compareDocumentPosition(contactNumber) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+      expect(cityLine.compareDocumentPosition(contactNumber) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     })
 
     it('shows a placeholder in the TO section until a client is selected', () => {

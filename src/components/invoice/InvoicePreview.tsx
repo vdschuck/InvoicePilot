@@ -1,6 +1,7 @@
 import { useWatch, type Control } from 'react-hook-form'
 import type { InvoiceFormValues } from '../../schemas/invoice'
 import type { Client, Contractor } from '../../types'
+import { formatAddressLines } from '../../utils/address'
 import { calculateInvoiceTotal, calculateItemAmount, toSafeNumber } from '../../utils/calculations'
 import { formatCurrency } from '../../utils/currency'
 import { formatLongDate } from '../../utils/dateFormat'
@@ -35,12 +36,11 @@ export function InvoicePreview({ contractor, clients, control }: InvoicePreviewP
           <h3 className="text-base font-semibold uppercase tracking-wide text-gray-500">From</h3>
           {contractor.name && <p className="text-sm font-medium">{contractor.name}</p>}
           <p className="text-sm">{contractor.companyName}</p>
-          <p className="text-sm">{contractor.addressLine1}</p>
-          {contractor.addressLine2 && <p className="text-sm">{contractor.addressLine2}</p>}
-          <p className="text-sm">
-            {contractor.city}, {contractor.state}, {contractor.country}
-          </p>
-          <p className="text-sm">{contractor.zipCode}</p>
+          {formatAddressLines(contractor).map((line, index) => (
+            <p key={index} className="text-sm">
+              {line}
+            </p>
+          ))}
           {contractor.contactNumber && <p className="text-sm">{contractor.contactNumber}</p>}
         </div>
         <div>
@@ -48,12 +48,11 @@ export function InvoicePreview({ contractor, clients, control }: InvoicePreviewP
           {client ? (
             <>
               <p className="text-sm font-medium">{client.companyName}</p>
-              <p className="text-sm">{client.addressLine1}</p>
-              {client.addressLine2 && <p className="text-sm">{client.addressLine2}</p>}
-              <p className="text-sm">
-                {client.city}, {client.state}, {client.country}
-              </p>
-              <p className="text-sm">{client.zipCode}</p>
+              {formatAddressLines(client).map((line, index) => (
+                <p key={index} className="text-sm">
+                  {line}
+                </p>
+              ))}
               {client.contactNumber && <p className="text-sm">{client.contactNumber}</p>}
             </>
           ) : (
