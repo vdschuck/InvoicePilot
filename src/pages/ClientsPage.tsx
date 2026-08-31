@@ -88,10 +88,8 @@ export function ClientsPage() {
                   className="flex flex-col gap-3 rounded-md border border-gray-200 p-4 sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div>
-                    <p className="font-medium">{client.name}</p>
-                    <p className="text-sm text-gray-600">
-                      {client.companyName} · {client.currency}
-                    </p>
+                    <p className="font-medium">{client.companyName}</p>
+                    <p className="text-sm text-gray-600">{client.currency}</p>
                   </div>
                   <div className="flex gap-3">
                     <button
@@ -136,7 +134,7 @@ export function ClientsPage() {
       <ConfirmDialog
         open={clientPendingDeletion !== null}
         title="Delete Client"
-        message={`Delete ${clientPendingDeletion?.name}? This cannot be undone.`}
+        message={`Delete ${clientPendingDeletion?.companyName}? This cannot be undone.`}
         confirmLabel="Delete"
         cancelLabel="Cancel"
         onConfirm={handleConfirmDelete}

@@ -6,7 +6,6 @@ const requiredField = (label: string) =>
   z.string().trim().min(1, `${label} is required`)
 
 export const clientSchema = z.object({
-  name: requiredField('Client name'),
   companyName: requiredField('Company name'),
   streetAddress: requiredField('Street address'),
   city: requiredField('City'),

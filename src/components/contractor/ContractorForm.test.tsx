@@ -6,20 +6,20 @@ import type { Contractor } from '../../types'
 import { ContractorForm } from './ContractorForm'
 
 function fillForm(values: Contractor) {
-  fireEvent.change(screen.getByLabelText('Contractor name'), {
+  fireEvent.change(screen.getByLabelText(/^Contractor name/), {
     target: { value: values.name },
   })
-  fireEvent.change(screen.getByLabelText('Company name'), {
+  fireEvent.change(screen.getByLabelText(/^Company name/), {
     target: { value: values.companyName },
   })
-  fireEvent.change(screen.getByLabelText('Street address'), {
+  fireEvent.change(screen.getByLabelText(/^Street address/), {
     target: { value: values.streetAddress },
   })
-  fireEvent.change(screen.getByLabelText('City'), { target: { value: values.city } })
-  fireEvent.change(screen.getByLabelText('State'), { target: { value: values.state } })
-  fireEvent.change(screen.getByLabelText('Country'), { target: { value: values.country } })
-  fireEvent.change(screen.getByLabelText('Zip code'), { target: { value: values.zipCode } })
-  fireEvent.change(screen.getByLabelText('Contact number'), {
+  fireEvent.change(screen.getByLabelText(/^City/), { target: { value: values.city } })
+  fireEvent.change(screen.getByLabelText(/^State/), { target: { value: values.state } })
+  fireEvent.change(screen.getByLabelText(/^Country/), { target: { value: values.country } })
+  fireEvent.change(screen.getByLabelText(/^Zip code/), { target: { value: values.zipCode } })
+  fireEvent.change(screen.getByLabelText(/^Contact number/), {
     target: { value: values.contactNumber },
   })
 }
@@ -45,9 +45,9 @@ function renderForm(contractorProp: Contractor | null) {
 
 function renderFormWithRoutes(contractorProp: Contractor | null) {
   return render(
-    <MemoryRouter initialEntries={['/setup']}>
+    <MemoryRouter initialEntries={['/contractor']}>
       <Routes>
-        <Route path="/setup" element={<ContractorForm contractor={contractorProp} />} />
+        <Route path="/contractor" element={<ContractorForm contractor={contractorProp} />} />
         <Route path="/clients" element={<div>Clients Page</div>} />
       </Routes>
     </MemoryRouter>,
@@ -64,7 +64,7 @@ describe('ContractorForm', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Save' }))
 
-    expect(await screen.findAllByRole('alert')).toHaveLength(8)
+    expect(await screen.findAllByRole('alert')).toHaveLength(7)
     expect(getAppData()).toBeNull()
   })
 
@@ -86,7 +86,6 @@ describe('ContractorForm', () => {
         clients: [
           {
             id: '1',
-            name: 'Grace Hopper',
             companyName: 'Compilers Inc',
             streetAddress: '1 Turing Way',
             city: 'Arlington',
@@ -109,8 +108,8 @@ describe('ContractorForm', () => {
   it('pre-fills the form when an existing contractor is passed in', () => {
     renderForm(contractor)
 
-    expect(screen.getByLabelText('Contractor name')).toHaveValue(contractor.name)
-    expect(screen.getByLabelText('Contact number')).toHaveValue(contractor.contactNumber)
+    expect(screen.getByLabelText(/^Contractor name/)).toHaveValue(contractor.name)
+    expect(screen.getByLabelText(/^Contact number/)).toHaveValue(contractor.contactNumber)
   })
 
   it('shows an error message when saving fails, without crashing', async () => {
@@ -139,7 +138,7 @@ describe('ContractorForm', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Save' }))
     await waitFor(() => expect(screen.getByRole('alert')).toBeInTheDocument())
 
-    fireEvent.change(screen.getByLabelText('City'), { target: { value: 'Manchester' } })
+    fireEvent.change(screen.getByLabelText(/^City/), { target: { value: 'Manchester' } })
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument()
 

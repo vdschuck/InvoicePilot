@@ -6,7 +6,7 @@ export function RequireContractorAndClient({ children }: { children: ReactNode }
   const appData = getAppData()
 
   if (!hasContractor(appData)) {
-    return <Navigate to="/setup" replace />
+    return <Navigate to="/contractor" replace />
   }
 
   if (!hasClients(appData)) {

@@ -19,10 +19,13 @@ describe('contractorSchema', () => {
     expect(result.success).toBe(true)
   })
 
-  it.each(Object.keys(validContractor()))('rejects a blank %s', (field) => {
-    const result = contractorSchema.safeParse({ ...validContractor(), [field]: '  ' })
-    expect(result.success).toBe(false)
-  })
+  it.each(Object.keys(validContractor()).filter((field) => field !== 'name'))(
+    'rejects a blank %s',
+    (field) => {
+      const result = contractorSchema.safeParse({ ...validContractor(), [field]: '  ' })
+      expect(result.success).toBe(false)
+    },
+  )
 
   it('trims surrounding whitespace', () => {
     const result = contractorSchema.parse({
@@ -30,6 +33,13 @@ describe('contractorSchema', () => {
       name: '  Ada Lovelace  ',
     })
     expect(result.name).toBe('Ada Lovelace')
+  })
+
+  it('accepts a contractor with no name', () => {
+    const contractor = validContractor()
+    delete (contractor as Partial<typeof contractor>).name
+    const result = contractorSchema.safeParse(contractor)
+    expect(result.success).toBe(true)
   })
 
   it('accepts a contractor with no payment information', () => {

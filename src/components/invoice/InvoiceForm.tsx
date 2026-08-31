@@ -39,7 +39,7 @@ export function InvoiceForm({ contractor, clients, draftForm }: InvoiceFormProps
     })),
   )
 
-  const clientOptions = clients.map((client) => ({ value: client.id, label: client.name }))
+  const clientOptions = clients.map((client) => ({ value: client.id, label: client.companyName }))
   const itemsError = errors.items?.root?.message ?? errors.items?.message
 
   async function handleDownload(values: InvoiceFormValues) {

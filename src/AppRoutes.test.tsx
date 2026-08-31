@@ -21,8 +21,7 @@ function makeContractor(): Contractor {
 function makeClient(): Client {
   return {
     id: '1',
-    name: 'Client',
-    companyName: '',
+    companyName: 'Client',
     streetAddress: '',
     city: '',
     state: '',
@@ -49,11 +48,11 @@ describe('route guards', () => {
     localStorage.clear()
   })
 
-  it('redirects direct access to /setup back to the home page', async () => {
-    renderAt('/setup')
+  it('redirects direct access to /contractor back to the home page', async () => {
+    renderAt('/contractor')
     await waitFor(() =>
       expect(
-        screen.getByRole('heading', { name: 'Invoice Pilot' }),
+        screen.getByRole('heading', { name: 'INVOICE PILOT' }),
       ).toBeInTheDocument(),
     )
   })
@@ -62,7 +61,7 @@ describe('route guards', () => {
     renderAt('/clients')
     await waitFor(() =>
       expect(
-        screen.getByRole('heading', { name: 'Invoice Pilot' }),
+        screen.getByRole('heading', { name: 'INVOICE PILOT' }),
       ).toBeInTheDocument(),
     )
   })
@@ -71,7 +70,7 @@ describe('route guards', () => {
     renderAt('/invoice')
     await waitFor(() =>
       expect(
-        screen.getByRole('heading', { name: 'Invoice Pilot' }),
+        screen.getByRole('heading', { name: 'INVOICE PILOT' }),
       ).toBeInTheDocument(),
     )
   })
@@ -80,7 +79,7 @@ describe('route guards', () => {
     renderAt('/does-not-exist')
     await waitFor(() =>
       expect(
-        screen.getByRole('heading', { name: 'Invoice Pilot' }),
+        screen.getByRole('heading', { name: 'INVOICE PILOT' }),
       ).toBeInTheDocument(),
     )
   })
@@ -133,7 +132,7 @@ describe('data reset', () => {
 
   it('shows the home page normally when there is no stored data', () => {
     renderAt('/')
-    expect(screen.getByRole('heading', { name: 'Invoice Pilot' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'INVOICE PILOT' })).toBeInTheDocument()
     expect(screen.queryByText("We couldn't read your saved data")).not.toBeInTheDocument()
   })
 

@@ -1,5 +1,5 @@
 export interface Contractor {
-  name: string
+  name?: string
   companyName: string
   streetAddress: string
   city: string
@@ -12,7 +12,6 @@ export interface Contractor {
 
 export interface Client {
   id: string
-  name: string
   companyName: string
   streetAddress: string
   city: string

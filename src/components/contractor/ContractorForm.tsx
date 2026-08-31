@@ -59,21 +59,34 @@ export function ContractorForm({ contractor }: { contractor: Contractor | null }
         label="Company name"
         registration={register('companyName')}
         error={errors.companyName?.message}
+        required
       />
       <TextField
         label="Street address"
         registration={register('streetAddress')}
         error={errors.streetAddress?.message}
+        required
       />
-      <TextField label="City" registration={register('city')} error={errors.city?.message} />
-      <TextField label="State" registration={register('state')} error={errors.state?.message} />
-      <TextField label="Country" registration={register('country')} error={errors.country?.message} />
-      <TextField label="Zip code" registration={register('zipCode')} error={errors.zipCode?.message} />
+      <TextField label="City" registration={register('city')} error={errors.city?.message} required />
+      <TextField label="State" registration={register('state')} error={errors.state?.message} required />
+      <TextField
+        label="Country"
+        registration={register('country')}
+        error={errors.country?.message}
+        required
+      />
+      <TextField
+        label="Zip code"
+        registration={register('zipCode')}
+        error={errors.zipCode?.message}
+        required
+      />
       <TextField
         label="Contact number"
         type="tel"
         registration={register('contactNumber')}
         error={errors.contactNumber?.message}
+        required
       />
       <TextareaField
         label="Payment information"

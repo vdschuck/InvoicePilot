@@ -34,7 +34,6 @@ function makeDraft(overrides: Partial<InvoiceDraft> = {}): InvoiceDraft {
     invoiceNumber: 'INV-1',
     client: {
       id: '1',
-      name: 'Grace Hopper',
       companyName: 'Compilers Inc',
       streetAddress: '1 Turing Way',
       city: 'Arlington',
@@ -65,7 +64,6 @@ describe('generateInvoicePdf', () => {
 
     expect(text).toContain(contractor.name)
     expect(text).toContain(contractor.companyName)
-    expect(text).toContain(draft.client.name)
     expect(text).toContain(draft.client.companyName)
     expect(text).toContain(draft.invoiceNumber)
     expect(text).toContain(formatLongDate(draft.invoiceDate))

@@ -58,17 +58,18 @@ export function generateInvoicePdf(contractor: Contractor, draft: InvoiceDraft):
   doc.text('TO', 110, 40)
   doc.setFont(FONT_NAME, 'normal')
 
-  writeLines(doc, MARGIN_X, 46, [
+  const fromLines = [
     contractor.name,
     contractor.companyName,
     contractor.streetAddress,
     `${contractor.city}, ${contractor.state}, ${contractor.country}`,
     contractor.zipCode,
     contractor.contactNumber,
-  ])
+  ].filter((line): line is string => Boolean(line))
+
+  writeLines(doc, MARGIN_X, 46, fromLines)
 
   writeLines(doc, 110, 46, [
-    draft.client.name,
     draft.client.companyName,
     draft.client.streetAddress,
     `${draft.client.city}, ${draft.client.state}, ${draft.client.country}`,

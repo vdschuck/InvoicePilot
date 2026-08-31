@@ -1,7 +1,7 @@
 import { ContractorForm } from '../components/contractor/ContractorForm'
 import { getAppData } from '../services/storage'
 
-export function SetupPage() {
+export function ContractorPage() {
   const appData = getAppData()
 
   return (

@@ -16,7 +16,6 @@ const contractor: Contractor = {
 }
 
 function fillClientForm(values: {
-  name: string
   companyName: string
   streetAddress: string
   city: string
@@ -25,24 +24,22 @@ function fillClientForm(values: {
   contactNumber: string
   currency: string
 }) {
-  fireEvent.change(screen.getByLabelText('Client name'), { target: { value: values.name } })
-  fireEvent.change(screen.getByLabelText('Company name'), {
+  fireEvent.change(screen.getByLabelText(/^Company name/), {
     target: { value: values.companyName },
   })
-  fireEvent.change(screen.getByLabelText('Street address'), {
+  fireEvent.change(screen.getByLabelText(/^Street address/), {
     target: { value: values.streetAddress },
   })
-  fireEvent.change(screen.getByLabelText('City'), { target: { value: values.city } })
-  fireEvent.change(screen.getByLabelText('State'), { target: { value: values.state } })
-  fireEvent.change(screen.getByLabelText('Country'), { target: { value: values.country } })
-  fireEvent.change(screen.getByLabelText('Contact number'), {
+  fireEvent.change(screen.getByLabelText(/^City/), { target: { value: values.city } })
+  fireEvent.change(screen.getByLabelText(/^State/), { target: { value: values.state } })
+  fireEvent.change(screen.getByLabelText(/^Country/), { target: { value: values.country } })
+  fireEvent.change(screen.getByLabelText(/^Contact number/), {
     target: { value: values.contactNumber },
   })
-  fireEvent.change(screen.getByLabelText('Currency'), { target: { value: values.currency } })
+  fireEvent.change(screen.getByLabelText(/^Currency/), { target: { value: values.currency } })
 }
 
 const clientA = {
-  name: 'Grace Hopper',
   companyName: 'Compilers Inc',
   streetAddress: '1 Turing Way',
   city: 'Arlington',
@@ -53,7 +50,6 @@ const clientA = {
 }
 
 const clientB = {
-  name: 'Alan Turing',
   companyName: 'Codebreakers Ltd',
   streetAddress: '2 Bletchley Park',
   city: 'Milton Keynes',
@@ -81,7 +77,7 @@ describe('ClientsPage', () => {
     fillClientForm(clientA)
     fireEvent.click(screen.getByRole('button', { name: 'Add Client' }))
 
-    await screen.findByText('Grace Hopper')
+    await screen.findByText('Compilers Inc')
     expect(screen.queryByText('No clients registered yet.')).not.toBeInTheDocument()
   })
 
@@ -91,7 +87,7 @@ describe('ClientsPage', () => {
     fillClientForm(clientA)
     fireEvent.click(screen.getByRole('button', { name: 'Add Client' }))
 
-    expect(await screen.findByText('Grace Hopper')).toBeInTheDocument()
+    expect(await screen.findByText('Compilers Inc')).toBeInTheDocument()
     expect(screen.getByText('1 / 3')).toBeInTheDocument()
   })
 
@@ -100,16 +96,16 @@ describe('ClientsPage', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Add Client' }))
 
-    expect(await screen.findAllByRole('alert')).toHaveLength(8)
+    expect(await screen.findAllByRole('alert')).toHaveLength(7)
   })
 
   it('disables Add Client once the maximum of 3 is reached', async () => {
     render(<ClientsPage />)
 
-    for (const client of [clientA, clientB, { ...clientA, name: 'Third Client' }]) {
+    for (const client of [clientA, clientB, { ...clientA, companyName: 'Third Client' }]) {
       fillClientForm(client)
       fireEvent.click(screen.getByRole('button', { name: 'Add Client' }))
-      await screen.findByText(client.name)
+      await screen.findByText(client.companyName)
     }
 
     expect(screen.getByText('3 / 3')).toBeInTheDocument()
@@ -120,40 +116,41 @@ describe('ClientsPage', () => {
     render(<ClientsPage />)
     fillClientForm(clientA)
     fireEvent.click(screen.getByRole('button', { name: 'Add Client' }))
-    await screen.findByText('Grace Hopper')
+    await screen.findByText('Compilers Inc')
 
     fireEvent.click(screen.getByRole('button', { name: 'Edit' }))
-    fireEvent.change(screen.getByLabelText('Client name'), {
-      target: { value: 'Grace B. Hopper' },
+    fireEvent.change(screen.getByLabelText(/^Company name/), {
+      target: { value: 'Compilers International' },
     })
     fireEvent.click(screen.getByRole('button', { name: 'Save Changes' }))
 
-    expect(await screen.findByText('Grace B. Hopper')).toBeInTheDocument()
-    expect(screen.queryByText('Grace Hopper')).not.toBeInTheDocument()
+    expect(await screen.findByText('Compilers International')).toBeInTheDocument()
+    expect(screen.queryByText('Compilers Inc')).not.toBeInTheDocument()
   })
 
   it('shows a custom confirmation dialog before deleting a client', async () => {
     render(<ClientsPage />)
     fillClientForm(clientA)
     fireEvent.click(screen.getByRole('button', { name: 'Add Client' }))
-    await screen.findByText('Grace Hopper')
+    await screen.findByText('Compilers Inc')
 
     fireEvent.click(screen.getByRole('button', { name: 'Delete' }))
 
-    expect(screen.getByRole('alertdialog')).toBeInTheDocument()
-    expect(screen.getByText('Grace Hopper')).toBeInTheDocument()
+    const dialog = screen.getByRole('alertdialog')
+    expect(dialog).toBeInTheDocument()
+    expect(within(dialog).getByText(/Compilers Inc/)).toBeInTheDocument()
   })
 
   it('deletes a client after confirmation', async () => {
     render(<ClientsPage />)
     fillClientForm(clientA)
     fireEvent.click(screen.getByRole('button', { name: 'Add Client' }))
-    await screen.findByText('Grace Hopper')
+    await screen.findByText('Compilers Inc')
 
     fireEvent.click(screen.getByRole('button', { name: 'Delete' }))
     fireEvent.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Delete' }))
 
-    expect(screen.queryByText('Grace Hopper')).not.toBeInTheDocument()
+    expect(screen.queryByText('Compilers Inc')).not.toBeInTheDocument()
     expect(screen.getByText('0 / 3')).toBeInTheDocument()
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   })
@@ -162,12 +159,12 @@ describe('ClientsPage', () => {
     render(<ClientsPage />)
     fillClientForm(clientA)
     fireEvent.click(screen.getByRole('button', { name: 'Add Client' }))
-    await screen.findByText('Grace Hopper')
+    await screen.findByText('Compilers Inc')
 
     fireEvent.click(screen.getByRole('button', { name: 'Delete' }))
     fireEvent.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Cancel' }))
 
-    expect(screen.getByText('Grace Hopper')).toBeInTheDocument()
+    expect(screen.getByText('Compilers Inc')).toBeInTheDocument()
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   })
 
@@ -175,16 +172,16 @@ describe('ClientsPage', () => {
     render(<ClientsPage />)
     fillClientForm(clientA)
     fireEvent.click(screen.getByRole('button', { name: 'Add Client' }))
-    await screen.findByText('Grace Hopper')
+    await screen.findByText('Compilers Inc')
 
     fireEvent.click(screen.getByRole('button', { name: 'Edit' }))
-    fireEvent.change(screen.getByLabelText('Client name'), {
-      target: { value: 'Grace B. Hopper' },
+    fireEvent.change(screen.getByLabelText(/^Company name/), {
+      target: { value: 'Compilers International' },
     })
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }))
 
-    expect(screen.getByText('Grace Hopper')).toBeInTheDocument()
-    expect(screen.queryByText('Grace B. Hopper')).not.toBeInTheDocument()
+    expect(screen.getByText('Compilers Inc')).toBeInTheDocument()
+    expect(screen.queryByText('Compilers International')).not.toBeInTheDocument()
   })
 
   describe('error states', () => {
@@ -212,7 +209,7 @@ describe('ClientsPage', () => {
       render(<ClientsPage />)
       fillClientForm(clientA)
       fireEvent.click(screen.getByRole('button', { name: 'Add Client' }))
-      await screen.findByText('Grace Hopper')
+      await screen.findByText('Compilers Inc')
 
       jest.spyOn(storageService, 'updateClient').mockImplementationOnce(() => {
         throw new Error('boom')
@@ -232,7 +229,7 @@ describe('ClientsPage', () => {
       render(<ClientsPage />)
       fillClientForm(clientA)
       fireEvent.click(screen.getByRole('button', { name: 'Add Client' }))
-      await screen.findByText('Grace Hopper')
+      await screen.findByText('Compilers Inc')
 
       jest.spyOn(storageService, 'deleteClient').mockImplementationOnce(() => {
         throw new Error('boom')
@@ -246,7 +243,7 @@ describe('ClientsPage', () => {
           screen.getByText('Failed to delete the client. Please try again.'),
         ).toBeInTheDocument()
       })
-      expect(screen.getByText('Grace Hopper')).toBeInTheDocument()
+      expect(screen.getByText('Compilers Inc')).toBeInTheDocument()
     })
   })
 })

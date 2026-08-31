@@ -2,7 +2,6 @@ import { clientSchema } from './client'
 
 function validClient() {
   return {
-    name: 'Grace Hopper',
     companyName: 'Compilers Inc',
     streetAddress: '1 Turing Way',
     city: 'Arlington',
@@ -18,7 +17,7 @@ describe('clientSchema', () => {
     expect(clientSchema.safeParse(validClient()).success).toBe(true)
   })
 
-  it.each(['name', 'companyName', 'streetAddress', 'city', 'state', 'country', 'contactNumber'])(
+  it.each(['companyName', 'streetAddress', 'city', 'state', 'country', 'contactNumber'])(
     'rejects a blank %s',
     (field) => {
       const result = clientSchema.safeParse({ ...validClient(), [field]: '  ' })

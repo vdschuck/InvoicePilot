@@ -23,7 +23,6 @@ const contractor: Contractor = {
 function seedContractorWithClient() {
   saveContractor(contractor)
   addClient({
-    name: 'Grace Hopper',
     companyName: 'Compilers Inc',
     streetAddress: '1 Turing Way',
     city: 'Arlington',
@@ -36,7 +35,7 @@ function seedContractorWithClient() {
 
 function fillValidDraft() {
   fireEvent.change(screen.getByLabelText('Client'), {
-    target: { value: screen.getByRole('option', { name: 'Grace Hopper' }).getAttribute('value') },
+    target: { value: screen.getByRole('option', { name: 'Compilers Inc' }).getAttribute('value') },
   })
   fireEvent.change(screen.getByLabelText('Invoice date'), { target: { value: '2026-01-01' } })
   fireEvent.change(screen.getByLabelText('Issued date'), { target: { value: '2026-01-01' } })
@@ -70,7 +69,7 @@ describe('InvoicePage', () => {
   it('lists registered clients in the client select', () => {
     render(<InvoicePage />)
     expect(
-      within(screen.getByLabelText('Client')).getByRole('option', { name: 'Grace Hopper' }),
+      within(screen.getByLabelText('Client')).getByRole('option', { name: 'Compilers Inc' }),
     ).toBeInTheDocument()
   })
 
@@ -168,9 +167,9 @@ describe('InvoicePage', () => {
     it('shows the selected client in the TO section', () => {
       render(<InvoicePage />)
       fireEvent.change(screen.getByLabelText('Client'), {
-        target: { value: screen.getByRole('option', { name: 'Grace Hopper' }).getAttribute('value') },
+        target: { value: screen.getByRole('option', { name: 'Compilers Inc' }).getAttribute('value') },
       })
-      expect(screen.getByText('Compilers Inc')).toBeInTheDocument()
+      expect(screen.getByText('1 Turing Way')).toBeInTheDocument()
       expect(screen.queryByText('No client selected')).not.toBeInTheDocument()
     })
 
@@ -185,7 +184,7 @@ describe('InvoicePage', () => {
     it('formats Amount Due using the selected client currency', () => {
       render(<InvoicePage />)
       fireEvent.change(screen.getByLabelText('Client'), {
-        target: { value: screen.getByRole('option', { name: 'Grace Hopper' }).getAttribute('value') },
+        target: { value: screen.getByRole('option', { name: 'Compilers Inc' }).getAttribute('value') },
       })
       fireEvent.change(screen.getByLabelText('Quantity'), { target: { value: '2' } })
       fireEvent.change(screen.getByLabelText('Rate'), { target: { value: '25' } })
@@ -206,14 +205,13 @@ describe('InvoicePage', () => {
     it('does not show banking details for a client that has none', () => {
       render(<InvoicePage />)
       fireEvent.change(screen.getByLabelText('Client'), {
-        target: { value: screen.getByRole('option', { name: 'Grace Hopper' }).getAttribute('value') },
+        target: { value: screen.getByRole('option', { name: 'Compilers Inc' }).getAttribute('value') },
       })
       expect(screen.queryByText("Client Banking Information")).not.toBeInTheDocument()
     })
 
     it('shows the banking details heading and content for a client that has them', () => {
       addClient({
-        name: 'Alan Turing',
         companyName: 'Codebreakers Ltd',
         streetAddress: '2 Enigma Road',
         city: 'Bletchley',
@@ -225,7 +223,7 @@ describe('InvoicePage', () => {
       })
       render(<InvoicePage />)
       fireEvent.change(screen.getByLabelText('Client'), {
-        target: { value: screen.getByRole('option', { name: 'Alan Turing' }).getAttribute('value') },
+        target: { value: screen.getByRole('option', { name: 'Codebreakers Ltd' }).getAttribute('value') },
       })
 
       expect(screen.getByText("Client Banking Information")).toBeInTheDocument()
@@ -249,7 +247,6 @@ describe('InvoicePage', () => {
 
     it('shows payment information right below the client banking details', () => {
       addClient({
-        name: 'Alan Turing',
         companyName: 'Codebreakers Ltd',
         streetAddress: '2 Enigma Road',
         city: 'Bletchley',
@@ -262,7 +259,7 @@ describe('InvoicePage', () => {
       saveContractor({ ...contractor, paymentInformation: 'Bank: Analytical Bank' })
       render(<InvoicePage />)
       fireEvent.change(screen.getByLabelText('Client'), {
-        target: { value: screen.getByRole('option', { name: 'Alan Turing' }).getAttribute('value') },
+        target: { value: screen.getByRole('option', { name: 'Codebreakers Ltd' }).getAttribute('value') },
       })
 
       const clientHeading = screen.getByText('Client Banking Information')
@@ -285,7 +282,7 @@ describe('InvoicePage', () => {
       })
       const [, draft] = (pdfService.generateInvoicePdf as jest.Mock).mock.calls[0]
       expect(draft.invoiceNumber).toBe('1')
-      expect(draft.client.name).toBe('Grace Hopper')
+      expect(draft.client.companyName).toBe('Compilers Inc')
       expect(draft.items).toHaveLength(1)
 
       const generatedDoc = (pdfService.generateInvoicePdf as jest.Mock).mock.results[0].value

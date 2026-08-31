@@ -30,8 +30,7 @@ function makeContractor(): Contractor {
 
 function makeClientInput(): Omit<Client, 'id'> {
   return {
-    name: 'Client',
-    companyName: '',
+    companyName: 'Client',
     streetAddress: '',
     city: '',
     state: '',
@@ -149,10 +148,10 @@ describe('storage', () => {
       const input = makeClientInput()
       const [added] = addClient(input)
 
-      const updated = updateClient(added.id, { ...input, name: 'Updated Name' })
+      const updated = updateClient(added.id, { ...input, companyName: 'Updated Name' })
 
       expect(updated).toHaveLength(1)
-      expect(updated[0]).toEqual({ ...input, name: 'Updated Name', id: added.id })
+      expect(updated[0]).toEqual({ ...input, companyName: 'Updated Name', id: added.id })
     })
 
     it('throws when no client matches the id', () => {
