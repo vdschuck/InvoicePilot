@@ -43,8 +43,7 @@ function makeDraft(overrides: Partial<InvoiceDraft> = {}): InvoiceDraft {
       contactNumber: '+1 555-0100',
       currency: 'USD',
     },
-    invoiceDate: '2026-01-01',
-    issuedDate: '2026-01-01',
+    issueDate: '2026-01-01',
     dueDate: '2026-01-15',
     items: [{ id: '1', refNo: 'A-1', description: 'Consulting', quantity: 2, rate: 100 }],
     ...overrides,
@@ -67,7 +66,7 @@ describe('generateInvoicePdf', () => {
     expect(text).toContain(contractor.companyName)
     expect(text).toContain(draft.client.companyName)
     expect(text).toContain(draft.invoiceNumber)
-    expect(text).toContain(formatLongDate(draft.invoiceDate))
+    expect(text).toContain(formatLongDate(draft.issueDate))
     expect(text).toContain(draft.items[0].refNo)
     expect(text).toContain(draft.items[0].description)
     expect(text).toContain(contractor.zipCode)

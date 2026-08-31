@@ -41,8 +41,7 @@ Display selected client:
 
 Display:
 
-Invoice Date
-Issued Date
+Issue Date
 Due Date
 
 ---

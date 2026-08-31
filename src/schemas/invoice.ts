@@ -17,8 +17,7 @@ export function createInvoiceSchema(validClientIds: string[]) {
     clientId: z.string().refine((value) => validClientIds.includes(value), {
       message: 'Select a client',
     }),
-    invoiceDate: requiredField('Invoice date'),
-    issuedDate: requiredField('Issued date'),
+    issueDate: requiredField('Issue date'),
     dueDate: requiredField('Due date'),
     items: z.array(invoiceItemSchema).min(1, 'At least one item is required'),
   })

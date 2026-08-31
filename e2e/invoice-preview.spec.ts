@@ -85,7 +85,7 @@ test('updates the TO section once a client is selected', async ({ page }) => {
 
 test('reflects dates as they are entered', async ({ page }) => {
   await goToInvoicePage(page)
-  await page.getByLabel('Invoice date').fill('2026-01-01')
+  await page.getByLabel('Issue date').fill('2026-01-01')
   await expect(page.getByText('January 1, 2026')).toBeVisible()
 })
 

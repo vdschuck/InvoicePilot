@@ -52,8 +52,7 @@ export function InvoiceForm({ contractor, clients, draftForm }: InvoiceFormProps
     const draft: InvoiceDraft = {
       invoiceNumber: values.invoiceNumber,
       client,
-      invoiceDate: values.invoiceDate,
-      issuedDate: values.issuedDate,
+      issueDate: values.issueDate,
       dueDate: values.dueDate,
       items: values.items,
     }
@@ -94,18 +93,12 @@ export function InvoiceForm({ contractor, clients, draftForm }: InvoiceFormProps
         placeholder="Select a client"
       />
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <TextField
-          label="Invoice date"
+          label="Issue date"
           type="date"
-          registration={register('invoiceDate')}
-          error={errors.invoiceDate?.message}
-        />
-        <TextField
-          label="Issued date"
-          type="date"
-          registration={register('issuedDate')}
-          error={errors.issuedDate?.message}
+          registration={register('issueDate')}
+          error={errors.issueDate?.message}
         />
         <TextField
           label="Due date"

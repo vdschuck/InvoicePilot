@@ -61,8 +61,7 @@ Banking details are shown on the invoice preview and PDF only when not empty.
 The user can create an invoice containing:
 
 - Invoice number
-- Invoice date
-- Issued date
+- Issue date
 - Due date
 - Selected client
 - Invoice items

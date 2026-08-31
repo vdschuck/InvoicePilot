@@ -35,7 +35,7 @@ export function InvoicePreview({ contractor, clients, control }: InvoicePreviewP
         <div>
           <h3 className="text-base font-semibold uppercase tracking-wide text-gray-500">From</h3>
           {contractor.name && <p className="text-sm font-medium">{contractor.name}</p>}
-          <p className="text-sm">{contractor.companyName}</p>
+          <p className="text-sm font-bold">{contractor.companyName}</p>
           {formatAddressLines(contractor).map((line, index) => (
             <p key={index} className="text-sm">
               {line}
@@ -47,7 +47,7 @@ export function InvoicePreview({ contractor, clients, control }: InvoicePreviewP
           <h3 className="text-base font-semibold uppercase tracking-wide text-gray-500">To</h3>
           {client ? (
             <>
-              <p className="text-sm font-medium">{client.companyName}</p>
+              <p className="text-sm font-bold">{client.companyName}</p>
               {formatAddressLines(client).map((line, index) => (
                 <p key={index} className="text-sm">
                   {line}
@@ -89,10 +89,8 @@ export function InvoicePreview({ contractor, clients, control }: InvoicePreviewP
       </div>
 
       <div className="grid grid-cols-[auto_auto] items-baseline justify-end gap-x-2 gap-y-1 self-end">
-        <h3 className="text-right text-sm font-semibold">Invoice Date:</h3>
-        <p className="text-sm">{values.invoiceDate ? formatLongDate(values.invoiceDate) : '—'}</p>
-        <h3 className="text-right text-sm font-semibold">Issued Date:</h3>
-        <p className="text-sm">{values.issuedDate ? formatLongDate(values.issuedDate) : '—'}</p>
+        <h3 className="text-right text-sm font-semibold">Issue Date:</h3>
+        <p className="text-sm">{values.issueDate ? formatLongDate(values.issueDate) : '—'}</p>
         <h3 className="text-right text-sm font-semibold">Due Date:</h3>
         <p className="text-sm">{values.dueDate ? formatLongDate(values.dueDate) : '—'}</p>
       </div>

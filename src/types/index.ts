@@ -36,8 +36,7 @@ interface InvoiceItem {
 export interface InvoiceDraft {
   invoiceNumber: string
   client: Client
-  invoiceDate: string
-  issuedDate: string
+  issueDate: string
   dueDate: string
   items: InvoiceItem[]
 }

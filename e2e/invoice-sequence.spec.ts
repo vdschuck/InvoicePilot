@@ -57,8 +57,7 @@ async function goToInvoicePage(page: Page, invoiceSequence = 1) {
 
 async function fillValidDraft(page: Page) {
   await page.getByLabel('Client').selectOption({ label: 'Grace Hopper' })
-  await page.getByLabel('Invoice date').fill('2026-01-01')
-  await page.getByLabel('Issued date').fill('2026-01-01')
+  await page.getByLabel('Issue date').fill('2026-01-01')
   await page.getByLabel('Due date').fill('2026-01-15')
   await page.getByLabel('Ref No').fill('A-1')
   await page.getByLabel('Description').fill('Consulting services')

@@ -118,8 +118,7 @@ The client information is displayed in the TO section.
 
 User selects:
 
-- Invoice Date
-- Issued Date
+- Issue Date
 - Due Date
 
 ---

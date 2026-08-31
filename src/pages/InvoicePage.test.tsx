@@ -38,8 +38,7 @@ function fillValidDraft() {
   fireEvent.change(screen.getByLabelText('Client'), {
     target: { value: screen.getByRole('option', { name: 'Compilers Inc' }).getAttribute('value') },
   })
-  fireEvent.change(screen.getByLabelText('Invoice date'), { target: { value: '2026-01-01' } })
-  fireEvent.change(screen.getByLabelText('Issued date'), { target: { value: '2026-01-01' } })
+  fireEvent.change(screen.getByLabelText('Issue date'), { target: { value: '2026-01-01' } })
   fireEvent.change(screen.getByLabelText('Due date'), { target: { value: '2026-01-15' } })
   fireEvent.change(screen.getByLabelText('Ref No'), { target: { value: 'A-1' } })
   fireEvent.change(screen.getByLabelText('Description'), { target: { value: 'Consulting' } })
@@ -178,7 +177,7 @@ describe('InvoicePage', () => {
 
     it('reflects the invoice number and dates as they are entered', () => {
       render(<InvoicePage />)
-      fireEvent.change(screen.getByLabelText('Invoice date'), { target: { value: '2026-01-01' } })
+      fireEvent.change(screen.getByLabelText('Issue date'), { target: { value: '2026-01-01' } })
 
       expect(screen.getByText('Invoice # 1')).toBeInTheDocument()
       expect(screen.getByText('January 1, 2026')).toBeInTheDocument()

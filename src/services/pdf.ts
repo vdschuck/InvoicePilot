@@ -14,10 +14,17 @@ const BORDER_GRAY: [number, number, number] = [229, 231, 235]
 
 type DocumentWithAutoTable = jsPDF & { lastAutoTable?: { finalY: number } }
 
-function writeLines(doc: jsPDF, x: number, y: number, lines: string[]): void {
+interface PartyLine {
+  text: string
+  bold?: boolean
+}
+
+function writeLines(doc: jsPDF, x: number, y: number, lines: PartyLine[]): void {
   lines.forEach((line, index) => {
-    doc.text(line, x, y + index * 5)
+    doc.setFont(FONT_NAME, line.bold ? 'bold' : 'normal')
+    doc.text(line.text, x, y + index * 5)
   })
+  doc.setFont(FONT_NAME, 'normal')
 }
 
 function registerInterFont(doc: jsPDF): void {
@@ -38,7 +45,12 @@ function writeLabeledLines(
   doc.setFont(FONT_NAME, 'bold')
   doc.text(label, x, y)
   doc.setFont(FONT_NAME, 'normal')
-  writeLines(doc, x, y + 6, lines)
+  writeLines(
+    doc,
+    x,
+    y + 6,
+    lines.map((text) => ({ text })),
+  )
   return y + 6 + lines.length * 5 + 4
 }
 
@@ -59,18 +71,18 @@ export function generateInvoicePdf(contractor: Contractor, draft: InvoiceDraft):
   doc.text('TO', 110, 40)
   doc.setFont(FONT_NAME, 'normal')
 
-  const fromLines = [
-    contractor.name,
-    contractor.companyName,
-    ...formatAddressLines(contractor),
-    contractor.contactNumber,
-  ].filter((line): line is string => Boolean(line))
+  const fromLines: PartyLine[] = [
+    contractor.name && { text: contractor.name },
+    { text: contractor.companyName, bold: true },
+    ...formatAddressLines(contractor).map((text) => ({ text })),
+    contractor.contactNumber && { text: contractor.contactNumber },
+  ].filter((line): line is PartyLine => Boolean(line))
 
-  const toLines = [
-    draft.client.companyName,
-    ...formatAddressLines(draft.client),
-    draft.client.contactNumber,
-  ].filter((line): line is string => Boolean(line))
+  const toLines: PartyLine[] = [
+    { text: draft.client.companyName, bold: true },
+    ...formatAddressLines(draft.client).map((text) => ({ text })),
+    draft.client.contactNumber && { text: draft.client.contactNumber },
+  ].filter((line): line is PartyLine => Boolean(line))
 
   writeLines(doc, MARGIN_X, 46, fromLines)
   writeLines(doc, 110, 46, toLines)
@@ -114,8 +126,7 @@ export function generateInvoicePdf(contractor: Contractor, draft: InvoiceDraft):
   let datesY = finalY + 18
   doc.setFontSize(10)
   const dateRows: [string, string][] = [
-    ['Invoice Date:', formatLongDate(draft.invoiceDate)],
-    ['Issued Date:', formatLongDate(draft.issuedDate)],
+    ['Issue Date:', formatLongDate(draft.issueDate)],
     ['Due Date:', formatLongDate(draft.dueDate)],
   ]
 

@@ -21,8 +21,7 @@ export function useInvoiceDraftForm({ invoiceSequence, clients }: UseInvoiceDraf
     defaultValues: {
       invoiceNumber: getNextInvoiceNumber(invoiceSequence),
       clientId: '',
-      invoiceDate: '',
-      issuedDate: '',
+      issueDate: '',
       dueDate: '',
       items: [
         {

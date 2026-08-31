@@ -4,8 +4,7 @@ function validDraft() {
   return {
     invoiceNumber: 'INV-1',
     clientId: 'client-1',
-    invoiceDate: '2026-01-01',
-    issuedDate: '2026-01-01',
+    issueDate: '2026-01-01',
     dueDate: '2026-01-15',
     items: [
       { id: '1', refNo: 'A-1', description: 'Consulting', quantity: 2, rate: 100 },
@@ -30,7 +29,7 @@ describe('createInvoiceSchema', () => {
     expect(result.success).toBe(false)
   })
 
-  it.each(['invoiceDate', 'issuedDate', 'dueDate'])('rejects a blank %s', (field) => {
+  it.each(['issueDate', 'dueDate'])('rejects a blank %s', (field) => {
     const result = schema.safeParse({ ...validDraft(), [field]: '' })
     expect(result.success).toBe(false)
   })
